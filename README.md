@@ -1,6 +1,6 @@
 meu-projeto/
 ├── public/
-│   ├── index.html
+│   └── index.html
 ├── src/
 │   ├── assets/            # Arquivos estáticos (imagens, fontes, etc.)
 │   ├── components/        # Componentes reutilizáveis
