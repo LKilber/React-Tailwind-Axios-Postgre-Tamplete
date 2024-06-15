@@ -1,23 +1,76 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Diretórios de dependências
+node_modules/
 
-# testing
+# Build directories
+build/
+dist/
+
+# Diretórios de cache do npm
+.npm
+.npmrc
+.yarn-integrity
+.yarnrc
+
+# Output de build do React
 /coverage
-
-# production
 /build
 
-# misc
-.DS_Store
+# Arquivos de configuração do ambiente
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs e editores de código
+.vscode/
+.idea/
+
+# ESLint e Prettier
+.eslintcache
+
+# Tailwind CSS
+.tailwindcache
+
+# Arquivos de configuração específicos do ambiente
+*.local
+*.log
+*.env
+
+# Diretórios de cache
+.cache/
+.parcel-cache/
+
+# Arquivos temporários e backups
+*.swp
+*~
+.project
+.idea
+.vscode
+*.sublime-workspace
+
+# Outros arquivos e diretórios de cache
+.tmp
+.tmp*
+.temp
+.temp*
+.sass-cache
+
+# Configurações do editor de código
+*.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
