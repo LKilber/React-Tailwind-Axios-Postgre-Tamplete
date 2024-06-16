@@ -11,6 +11,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
+import Implantation from './pages/Implantation';
 
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -49,6 +50,14 @@ const App = () => {
           element={
             <AuthLayout>
               <Pricing />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="/implantation"
+          element={
+            <AuthLayout>
+              <Implantation />
             </AuthLayout>
           }
         />
