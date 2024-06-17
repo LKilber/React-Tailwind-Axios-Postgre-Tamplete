@@ -4,28 +4,36 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ptBR from 'date-fns/locale/pt-BR';
 
-// Register the locale
 registerLocale('pt-BR', ptBR);
 
 const Pricing = () => {
   const [quantity, setQuantity] = useState(0);
   const [units, setUnits] = useState([]);
   const [errors, setErrors] = useState({});
+  const [selectedValue, setSelectedValue] = useState('option1');
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value, 10) || 0;
     setQuantity(value);
 
     const newUnits = Array.from({ length: value }, () => ({
+      schoolName: '',
+      schoolID: '',
+      pricingType: '',
       cnpj: '',
-      unitName: '',
-      executiveName: '',
-      pricingDate: null,
+      inep: '',
       demandDate: null,
+      pricingDate: null,
+      fantasyName: '',
+      companyName: '',
       cep: '',
       endereco: '',
       cidade: '',
       uf: '',
+      executiveName: '',
+      studentsQtt: '',
+      discountPct: '',
+      ticketAvg: '',
       tir0: '',
       tir1: '',
       tir2: '',
@@ -33,6 +41,7 @@ const Pricing = () => {
       tir4: '',
       tir5: '',
       tir6: '',
+      financialDataType: '',
     }));
     setUnits(newUnits);
   };
@@ -43,9 +52,9 @@ const Pricing = () => {
     setUnits(newUnits);
   };
 
-  const handleDateChange = (index, field, date) => {
+  const handleDateChange = (field, date) => {
     const newUnits = [...units];
-    newUnits[index][field] = date;
+    newUnits[field] = date;
     setUnits(newUnits);
   };
 
@@ -87,6 +96,10 @@ const Pricing = () => {
     console.log('File uploaded:', e.target.files[0]);
   };
 
+  const handleRadioChange = (value) => {
+    setSelectedValue(value);
+  };
+
   return (
     <MainLayout>
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -95,145 +108,156 @@ const Pricing = () => {
             Formulário de Precificação
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Escola
-              </label>
-              <input
-                type="text"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Escola
+                </label>
+                <input
+                  type="text"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  ID da Escola
+                </label>
+                <input
+                  type="text"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Quantidade de Unidade
-              </label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={handleQuantityChange}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-                min="0"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Quantidade de Unidade
+                </label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tipo de Precificação
+                </label>
+                <input
+                  type="radio"
+                  id="option1"
+                  value="Agrupada"
+                  checked={selectedValue === 'Agrupada'}
+                  onChange={() => handleRadioChange('Agrupada')}
+                />
+                <input
+                  type="radio"
+                  id="option2"
+                  value="Não Agrupada"
+                  checked={selectedValue === 'Não Agrupada'}
+                  onChange={() => handleRadioChange('Não Agrupada')}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Data de Precificação
+                </label>
+                <DatePicker
+                  onChange={(date) => handleDateChange('pricingDate', date)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  dateFormat="dd/MM/yyyy"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  placeholderText="Selecione a data"
+                  locale="pt-BR"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Data de Demanda
+                </label>
+                <DatePicker
+                  onChange={(date) => handleDateChange('demandDate', date)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  dateFormat="dd/MM/yyyy"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  placeholderText="Selecione a data"
+                  locale="pt-BR"
+                  required
+                />
+              </div>
             </div>
             {units.map((unit, index) => (
               <div key={index} className="border-t border-gray-300 pt-4 mt-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Unidade {index + 1}
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      CNPJ
-                    </label>
-                    <input
-                      type="text"
-                      value={unit.cnpj}
-                      onChange={(e) =>
-                        handleUnitChange(index, 'cnpj', e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[`cnpj${index}`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`cnpj${index}`]}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Nome da Unidade
-                    </label>
-                    <input
-                      type="text"
-                      value={unit.unitName}
-                      onChange={(e) =>
-                        handleUnitChange(index, 'unitName', e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[`unitName${index}`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`unitName${index}`]}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Nome do Executivo
-                    </label>
-                    <input
-                      type="text"
-                      value={unit.executiveName}
-                      onChange={(e) =>
-                        handleUnitChange(index, 'executiveName', e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[`executiveName${index}`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`executiveName${index}`]}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Data de Precificação
-                    </label>
-                    <DatePicker
-                      selected={unit.pricingDate}
-                      onChange={(date) =>
-                        handleDateChange(index, 'pricingDate', date)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      dateFormat="dd/MM/yyyy"
-                      showMonthDropdown
-                      showYearDropdown
-                      dropdownMode="select"
-                      placeholderText="Selecione a data"
-                      locale="pt-BR"
-                      required
-                    />
-                    {errors[`pricingDate${index}`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`pricingDate${index}`]}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Data de Demanda
-                    </label>
-                    <DatePicker
-                      selected={unit.demandDate}
-                      onChange={(date) =>
-                        handleDateChange(index, 'demandDate', date)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      dateFormat="dd/MM/yyyy"
-                      showMonthDropdown
-                      showYearDropdown
-                      dropdownMode="select"
-                      placeholderText="Selecione a data"
-                      locale="pt-BR"
-                      required
-                    />
-                    {errors[`demandDate${index}`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`demandDate${index}`]}
-                      </p>
-                    )}
-                  </div>
+                <div className="grid grid-cols-4 gap-4 mt-4">
+                  {['cnpj', 'inep', 'fantasyName', 'companyName'].map(
+                    (field) => (
+                      <div key={field}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.toUpperCase()}
+                        </label>
+                        <input
+                          type="text"
+                          value={unit[field]}
+                          onChange={(e) =>
+                            handleUnitChange(index, field, e.target.value)
+                          }
+                          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required
+                        />
+                        {errors[`${field}${index}`] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[`${field}${index}`]}
+                          </p>
+                        )}
+                      </div>
+                    ),
+                  )}
                 </div>
                 <div className="grid grid-cols-4 gap-4 mt-4">
                   {['cep', 'endereco', 'cidade', 'uf'].map((field) => (
+                    <div key={field}>
+                      <label className="block text-sm font-medium text-gray-700">
+                        {field.toUpperCase()}
+                      </label>
+                      <input
+                        type="text"
+                        value={unit[field]}
+                        onChange={(e) =>
+                          handleUnitChange(index, field, e.target.value)
+                        }
+                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                      {errors[`${field}${index}`] && (
+                        <p className="text-red-500 text-sm">
+                          {errors[`${field}${index}`]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-4 gap-4 mt-4">
+                  {[
+                    'executiveName',
+                    'studentsQtt',
+                    'discountPct',
+                    'ticketAvg',
+                  ].map((field) => (
                     <div key={field}>
                       <label className="block text-sm font-medium text-gray-700">
                         {field.toUpperCase()}
