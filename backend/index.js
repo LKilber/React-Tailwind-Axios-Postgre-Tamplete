@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const axios = require('axios');
 
 dotenv.config();
 
@@ -67,6 +68,16 @@ app.get('/api/users', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users');
     res.json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+app.get('/api/flask-data', async (req, res) => {
+  try {
+    const response = await axios.get('http://localhost:5001/flask-endpoint');
+    res.json(response.data);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

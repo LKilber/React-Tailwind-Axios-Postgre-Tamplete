@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   FaBars,
   FaHome,
-  FaUser,
   FaQuestionCircle,
   FaSignOutAlt,
   FaFileAlt,
@@ -19,77 +18,85 @@ const SideBar = () => {
 
   return (
     <div
-      className={`flex ${isOpen ? 'w-64' : 'w-20'} bg-gradient-to-r from-blue-600 to-blue-800 text-white min-h-full transition-all duration-300 shadow-lg`}
+      className={`flex ${isOpen ? 'w-48' : 'w-11'} bg-blue-900 text-white min-h-screen transition-all duration-500 ease-in-out shadow-lg`}
     >
       <div className="flex flex-col items-center w-full">
         <button
           onClick={toggleSidebar}
-          className="text-white focus:outline-none mt-4"
+          className="text-white focus:outline-none mt-4 transition-transform duration-500 ease-in-out transform hover:rotate-90"
         >
-          <FaBars size={24} />
+          <FaBars size={14} />
         </button>
-        {isOpen && (
-          <div className="flex flex-col items-center mt-6 space-y-4 w-full">
-            <NavLink
-              to="/home"
-              className="flex items-center w-full px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-              activeClassName="bg-blue-700"
-              exact
+        <div className="flex flex-col items-center mt-6 space-y-2 w-full">
+          <NavLink
+            to="/home"
+            className="flex items-center w-full px-3 py-2 rounded hover:bg-blue-700 transition-colors duration-300"
+            activeClassName="bg-blue-700"
+            exact
+          >
+            <FaHome className="mr-3" />
+            <span
+              className={`transition-opacity duration-300 ${isOpen ? 'opacity-100 delay-300' : 'opacity-0'}`}
             >
-              <FaHome className="mr-3" />
-              <span>Home</span>
-            </NavLink>
-            <NavLink
-              to="/profile"
-              className="flex items-center w-full px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-              activeClassName="bg-blue-700"
+              Home
+            </span>
+          </NavLink>
+          <NavLink
+            to="/precificacao"
+            className="flex items-center w-full px-3 py-2 rounded hover:bg-blue-700 transition-colors duration-300"
+            activeClassName="bg-blue-700"
+          >
+            <FaQuestionCircle className="mr-3" />
+            <span
+              className={`transition-opacity duration-300 ${isOpen ? 'opacity-100 delay-300' : 'opacity-0'}`}
             >
-              <FaUser className="mr-3" />
-              <span>Perfil</span>
-            </NavLink>
-            <NavLink
-              to="/help"
-              className="flex items-center w-full px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-              activeClassName="bg-blue-700"
-            >
-              <FaQuestionCircle className="mr-3" />
-              <span>Ajuda</span>
-            </NavLink>
-            <div className="relative group w-full">
-              <div className="flex items-center justify-between w-full px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition-colors duration-200 group-hover:shadow-lg group-hover:bg-blue-600">
-                <div className="flex items-center">
-                  <FaFileAlt className="mr-3" />
-                  <span>Formulários</span>
-                </div>
+              Precificação
+            </span>
+          </NavLink>
+          <div className="relative group w-full">
+            <div className="flex items-center justify-between w-full px-3 py-2 rounded hover:bg-blue-700 cursor-pointer transition-colors duration-300 group-hover:shadow-lg group-hover:bg-blue-600">
+              <div className="flex items-center">
+                <FaFileAlt className="mr-3" />
+                <span
+                  className={`transition-opacity duration-300 ${isOpen ? 'opacity-100 delay-300' : 'opacity-0'}`}
+                >
+                  Formulários
+                </span>
+              </div>
+              {isOpen && (
                 <FaChevronRight className="transform group-hover:rotate-90 transition-transform duration-300" />
-              </div>
-              <div className="absolute left-full top-0 mt-2 w-48 bg-blue-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden">
-                <NavLink
-                  to="/pricing"
-                  className="block px-4 py-2 hover:bg-blue-700 transition-colors duration-200"
-                  activeClassName="bg-blue-700"
-                >
-                  Precificação
-                </NavLink>
-                <NavLink
-                  to="/implantation"
-                  className="block px-4 py-2 hover:bg-blue-700 transition-colors duration-200"
-                  activeClassName="bg-blue-700"
-                >
-                  Implantação
-                </NavLink>
-              </div>
+              )}
             </div>
-            <NavLink
-              to="/logout"
-              className="flex items-center w-full px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-              activeClassName="bg-blue-700"
-            >
-              <FaSignOutAlt className="mr-3" />
-              <span>Logout</span>
-            </NavLink>
+            <div className="absolute left-full top-0 mt-2 w-48 bg-blue-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden z-10">
+              <NavLink
+                to="/pricing"
+                className="block px-3 py-2 hover:bg-blue-700 transition-colors duration-300"
+                activeClassName="bg-blue-700"
+              >
+                Precificação
+              </NavLink>
+              <NavLink
+                to="/implantation"
+                className="block px-3 py-2 hover:bg-blue-700 transition-colors duration-300"
+                activeClassName="bg-blue-700"
+              >
+                Implantação
+              </NavLink>
+            </div>
           </div>
-        )}
+          <NavLink
+            to="/logout"
+            className="flex items-center w-full px-3 py-2 rounded hover:bg-blue-700 transition-colors duration-300"
+            activeClassName="bg-blue-700"
+          >
+            <FaSignOutAlt className="mr-3" />
+            <span
+              className={`transition-opacity duration-300 ${isOpen ? 'opacity-100 delay-300' : 'opacity-0'}`}
+            >
+              Logout
+            </span>
+          </NavLink>
+        </div>
       </div>
     </div>
   );

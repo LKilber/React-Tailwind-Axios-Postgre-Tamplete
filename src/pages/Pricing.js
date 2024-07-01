@@ -1,332 +1,182 @@
-import React, { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
-import DatePicker, { registerLocale } from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import ptBR from 'date-fns/locale/pt-BR';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
+import '../styles/Pricing.css';
 
-registerLocale('pt-BR', ptBR);
+const Test = () => {
+  const [apiResponse, setApiResponse] = useState(null);
+  const [apiResponseInadimFlow, setApiResponseInadimFlow] = useState(null);
+  const [apiResponseRoll, setApiResponseRoll] = useState(null);
 
-const Pricing = () => {
-  const [quantity, setQuantity] = useState(0);
-  const [units, setUnits] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [selectedValue, setSelectedValue] = useState('option1');
+  const [isLoading, setLoading] = useState(false);
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value, 10) || 0;
-    setQuantity(value);
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
 
-    const newUnits = Array.from({ length: value }, () => ({
-      schoolName: '',
-      schoolID: '',
-      pricingType: '',
-      cnpj: '',
-      inep: '',
-      demandDate: null,
-      pricingDate: null,
-      fantasyName: '',
-      companyName: '',
-      cep: '',
-      endereco: '',
-      cidade: '',
-      uf: '',
-      executiveName: '',
-      studentsQtt: '',
-      discountPct: '',
-      ticketAvg: '',
-      tir0: '',
-      tir1: '',
-      tir2: '',
-      tir3: '',
-      tir4: '',
-      tir5: '',
-      tir6: '',
-      financialDataType: '',
-    }));
-    setUnits(newUnits);
-  };
+    reader.onload = async (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
 
-  const handleUnitChange = (index, field, value) => {
-    const newUnits = [...units];
-    newUnits[index][field] = value;
-    setUnits(newUnits);
-  };
+      setLoading(true);
 
-  const handleDateChange = (field, date) => {
-    const newUnits = [...units];
-    newUnits[field] = date;
-    setUnits(newUnits);
-  };
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('json', JSON.stringify(json));
 
-  const validate = () => {
-    const newErrors = {};
-    units.forEach((unit, index) => {
-      if (!unit.cnpj) newErrors[`cnpj${index}`] = 'CNPJ é obrigatório';
-      if (!unit.unitName)
-        newErrors[`unitName${index}`] = 'Nome da Unidade é obrigatório';
-      if (!unit.executiveName)
-        newErrors[`executiveName${index}`] = 'Nome do Executivo é obrigatório';
-      if (!unit.pricingDate)
-        newErrors[`pricingDate${index}`] = 'Data de Precificação é obrigatória';
-      if (!unit.demandDate)
-        newErrors[`demandDate${index}`] = 'Data de Demanda é obrigatória';
-      if (!unit.cep) newErrors[`cep${index}`] = 'CEP é obrigatório';
-      if (!unit.endereco)
-        newErrors[`endereco${index}`] = 'Endereço é obrigatório';
-      if (!unit.cidade) newErrors[`cidade${index}`] = 'Cidade é obrigatória';
-      if (!unit.uf) newErrors[`uf${index}`] = 'UF é obrigatório';
-      ['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].forEach(
-        (tir) => {
-          if (!unit[tir])
-            newErrors[`${tir}${index}`] = `${tir.toUpperCase()} é obrigatório`;
-        },
-      );
+        const responseFlask = await axios.post(
+          'http://localhost:5001/api/pricing',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+
+        setApiResponse(responseFlask.data.pricing);
+        setApiResponseInadimFlow(responseFlask.data.inadim_flow);
+        setApiResponseRoll(responseFlask.data.roll);
+      } catch (err) {
+        console.error('Erro ao enviar para a API Flask:', err.message);
+        setApiResponse(null);
+        setApiResponseInadimFlow(null);
+        setApiResponseRoll(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: '.xlsx, .xls',
+  });
+
+  const formatCurrency = (value) => {
+    return parseFloat(value).toLocaleString('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-    console.log('Form submitted:', { quantity, units });
-  };
-
-  const handleFileUpload = (e) => {
-    console.log('File uploaded:', e.target.files[0]);
-  };
-
-  const handleRadioChange = (value) => {
-    setSelectedValue(value);
+  const formatPercentage = (value) => {
+    return (
+      (value * 100).toLocaleString('pt-BR', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }) + '%'
+    );
   };
 
   return (
-    <MainLayout>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
-            Formulário de Precificação
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Escola
-                </label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  ID da Escola
-                </label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Quantidade de Unidade
-                </label>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Tipo de Precificação
-                </label>
-                <input
-                  type="radio"
-                  id="option1"
-                  value="Agrupada"
-                  checked={selectedValue === 'Agrupada'}
-                  onChange={() => handleRadioChange('Agrupada')}
-                />
-                <input
-                  type="radio"
-                  id="option2"
-                  value="Não Agrupada"
-                  checked={selectedValue === 'Não Agrupada'}
-                  onChange={() => handleRadioChange('Não Agrupada')}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Data de Precificação
-                </label>
-                <DatePicker
-                  onChange={(date) => handleDateChange('pricingDate', date)}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  dateFormat="dd/MM/yyyy"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                  placeholderText="Selecione a data"
-                  locale="pt-BR"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Data de Demanda
-                </label>
-                <DatePicker
-                  onChange={(date) => handleDateChange('demandDate', date)}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  dateFormat="dd/MM/yyyy"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                  placeholderText="Selecione a data"
-                  locale="pt-BR"
-                  required
-                />
-              </div>
-            </div>
-            {units.map((unit, index) => (
-              <div key={index} className="border-t border-gray-300 pt-4 mt-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Unidade {index + 1}
-                </h3>
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  {['cnpj', 'inep', 'fantasyName', 'companyName'].map(
-                    (field) => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {field.toUpperCase()}
-                        </label>
-                        <input
-                          type="text"
-                          value={unit[field]}
-                          onChange={(e) =>
-                            handleUnitChange(index, field, e.target.value)
-                          }
-                          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          required
-                        />
-                        {errors[`${field}${index}`] && (
-                          <p className="text-red-500 text-sm">
-                            {errors[`${field}${index}`]}
-                          </p>
-                        )}
-                      </div>
-                    ),
-                  )}
-                </div>
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  {['cep', 'endereco', 'cidade', 'uf'].map((field) => (
-                    <div key={field}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.toUpperCase()}
-                      </label>
-                      <input
-                        type="text"
-                        value={unit[field]}
-                        onChange={(e) =>
-                          handleUnitChange(index, field, e.target.value)
-                        }
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                      {errors[`${field}${index}`] && (
-                        <p className="text-red-500 text-sm">
-                          {errors[`${field}${index}`]}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  {[
-                    'executiveName',
-                    'studentsQtt',
-                    'discountPct',
-                    'ticketAvg',
-                  ].map((field) => (
-                    <div key={field}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.toUpperCase()}
-                      </label>
-                      <input
-                        type="text"
-                        value={unit[field]}
-                        onChange={(e) =>
-                          handleUnitChange(index, field, e.target.value)
-                        }
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                      {errors[`${field}${index}`] && (
-                        <p className="text-red-500 text-sm">
-                          {errors[`${field}${index}`]}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-4 mt-4">
-                  {['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].map(
-                    (tir) => (
-                      <div key={tir}>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {tir.toUpperCase()}
-                        </label>
-                        <input
-                          type="text"
-                          value={unit[tir]}
-                          onChange={(e) =>
-                            handleUnitChange(index, tir, e.target.value)
-                          }
-                          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          required
-                        />
-                        {errors[`${tir}${index}`] && (
-                          <p className="text-red-500 text-sm">
-                            {errors[`${tir}${index}`]}
-                          </p>
-                        )}
-                      </div>
-                    ),
-                  )}
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Carregar arquivo Excel
-                  </label>
-                  <input
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            ))}
-            <button
-              type="submit"
-              className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Submit
-            </button>
-          </form>
-        </div>
+    <div className="Test">
+      <div {...getRootProps({ className: 'dropzone' })}>
+        <input {...getInputProps()} />
+        <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
       </div>
-    </MainLayout>
+
+      {isLoading && (
+        <p className="loading">Aguardando resposta do servidor...</p>
+      )}
+
+      {apiResponse && (
+        <div className="response">
+          <h3>Resposta da API Flask - Taxas:</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>TIR</th>
+                <th>Taxa Kedu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(apiResponse) &&
+                apiResponse.map((item, index) => (
+                  <tr key={index}>
+                    <td>{formatPercentage(item.tir_objetivo)}</td>
+                    <td>{formatPercentage(item.tk_encontrado)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {apiResponseInadimFlow && (
+        <div className="response">
+          <h3>Resposta da API Flask - Inadim Flow:</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Data Ref.</th>
+                <th>Recebíveis (R$)</th>
+                <th>Recebíveis Acc. (R$)</th>
+                <th>Pagamentos (R$)</th>
+                <th>Pagamentos Acc. (R$)</th>
+                <th>Inadimplência Acc. (R$)</th>
+                <th>Inadimplência (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(apiResponseInadimFlow) &&
+                apiResponseInadimFlow.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.data_ref}</td>
+                    <td>{formatCurrency(item.recebiveis)}</td>
+                    <td>{formatCurrency(item.recebiveis_acc)}</td>
+                    <td>{formatCurrency(item.pagamentos)}</td>
+                    <td>{formatCurrency(item.pagamentos_acc)}</td>
+                    <td>{formatCurrency(item.inadim_acc)}</td>
+                    <td>{formatPercentage(item.inadim_pct)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {apiResponseRoll && (
+        <div className="response">
+          <h3>Resposta da API Flask - Rolagem:</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Data Ref.</th>
+                <th>Recebíveis (R$)</th>
+                <th>D+0 (%)</th>
+                <th>D+30 (%)</th>
+                <th>D+60 (%)</th>
+                <th>D+90 (%)</th>
+                <th>D+120 (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(apiResponseRoll) &&
+                apiResponseRoll.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.data_ref}</td>
+                    <td>{formatCurrency(item.recebiveis)}</td>
+                    <td>{item.d0}</td>
+                    <td>{item.d30}</td>
+                    <td>{item.d60}</td>
+                    <td>{item.d90}</td>
+                    <td>{item.d120}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default Pricing;
+export default Test;
