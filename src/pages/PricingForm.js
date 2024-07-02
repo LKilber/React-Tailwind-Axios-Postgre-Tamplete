@@ -1,103 +1,101 @@
 import React, { useState } from 'react';
-import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import ptBR from 'date-fns/locale/pt-BR';
-
-registerLocale('pt-BR', ptBR);
 
 const PricingForm = () => {
-  const [quantity, setQuantity] = useState(0);
-  const [units, setUnits] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [selectedValue, setSelectedValue] = useState('option1');
+  const [formState, setFormState] = useState({
+    quantity: 0,
+    units: [],
+    selectedValue: 'Agrupada',
+    errors: {},
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value, 10) || 0;
-    setQuantity(value);
-
-    const newUnits = Array.from({ length: value }, () => ({
-      schoolName: '',
-      schoolID: '',
-      pricingType: '',
-      cnpj: '',
-      inep: '',
-      demandDate: null,
-      pricingDate: null,
-      fantasyName: '',
-      companyName: '',
-      cep: '',
-      endereco: '',
-      cidade: '',
-      uf: '',
-      executiveName: '',
-      studentsQtt: '',
-      discountPct: '',
-      ticketAvg: '',
-      tir0: '',
-      tir1: '',
-      tir2: '',
-      tir3: '',
-      tir4: '',
-      tir5: '',
-      tir6: '',
-      financialDataType: '',
+    const quantity = parseInt(e.target.value, 10);
+    setFormState((prev) => ({
+      ...prev,
+      quantity,
+      units: Array.from({ length: quantity }, () => ({
+        cnpj: '',
+        inep: '',
+        demandDate: null,
+        pricingDate: null,
+        fantasyName: '',
+        companyName: '',
+        cep: '',
+        endereco: '',
+        cidade: '',
+        uf: '',
+        executiveName: '',
+        studentsQtt: '',
+        discountPct: '',
+        ticketAvg: '',
+        tir0: '',
+        tir1: '',
+        tir2: '',
+        tir3: '',
+        tir4: '',
+        tir5: '',
+        tir6: '',
+        financialDataType: '',
+      })),
     }));
-    setUnits(newUnits);
   };
 
   const handleUnitChange = (index, field, value) => {
-    const newUnits = [...units];
-    newUnits[index][field] = value;
-    setUnits(newUnits);
-  };
-
-  const handleDateChange = (field, date) => {
-    const newUnits = [...units];
-    newUnits[field] = date;
-    setUnits(newUnits);
+    const newUnits = [...formState.units];
+    newUnits[index] = { ...newUnits[index], [field]: value };
+    setFormState((prev) => ({ ...prev, units: newUnits }));
   };
 
   const validate = () => {
-    const newErrors = {};
-    units.forEach((unit, index) => {
-      if (!unit.cnpj) newErrors[`cnpj${index}`] = 'CNPJ é obrigatório';
-      if (!unit.unitName)
-        newErrors[`unitName${index}`] = 'Nome da Unidade é obrigatório';
-      if (!unit.executiveName)
-        newErrors[`executiveName${index}`] = 'Nome do Executivo é obrigatório';
-      if (!unit.pricingDate)
-        newErrors[`pricingDate${index}`] = 'Data de Precificação é obrigatória';
-      if (!unit.demandDate)
-        newErrors[`demandDate${index}`] = 'Data de Demanda é obrigatória';
-      if (!unit.cep) newErrors[`cep${index}`] = 'CEP é obrigatório';
-      if (!unit.endereco)
-        newErrors[`endereco${index}`] = 'Endereço é obrigatório';
-      if (!unit.cidade) newErrors[`cidade${index}`] = 'Cidade é obrigatória';
-      if (!unit.uf) newErrors[`uf${index}`] = 'UF é obrigatório';
-      ['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].forEach(
-        (tir) => {
-          if (!unit[tir])
-            newErrors[`${tir}${index}`] = `${tir.toUpperCase()} é obrigatório`;
-        },
-      );
+    const errors = {};
+    formState.units.forEach((unit, index) => {
+      const unitErrors = {};
+      const requiredFields = [
+        'cnpj',
+        'schoolName',
+        'executiveName',
+        'pricingDate',
+        'demandDate',
+        'cep',
+        'endereco',
+        'cidade',
+        'uf',
+        'tir0',
+        'tir1',
+        'tir2',
+        'tir3',
+        'tir4',
+        'tir5',
+        'tir6',
+      ];
+      requiredFields.forEach((field) => {
+        if (!unit[field]) {
+          unitErrors[field] = `${field.toUpperCase()} é obrigatório`;
+        }
+      });
+      if (Object.keys(unitErrors).length) {
+        errors[index] = unitErrors;
+      }
     });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setFormState((prev) => ({ ...prev, errors }));
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
-    console.log('Form submitted:', { quantity, units });
+    console.log('Form submitted:', formState);
+    if (validate()) {
+      console.log('Form submitted:', formState);
+    }
   };
 
-  const handleFileUpload = (e) => {
-    console.log('File uploaded:', e.target.files[0]);
-  };
-
-  const handleRadioChange = (value) => {
-    setSelectedValue(value);
-  };
+  const { quantity, units, selectedValue, errors } = formState;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -114,6 +112,9 @@ const PricingForm = () => {
               <input
                 type="text"
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="schoolName"
+                value={formState.schoolName}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -124,6 +125,9 @@ const PricingForm = () => {
               <input
                 type="text"
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="schoolID"
+                value={formState.schoolID}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -135,6 +139,7 @@ const PricingForm = () => {
               </label>
               <input
                 type="number"
+                name="quantity"
                 value={quantity}
                 onChange={handleQuantityChange}
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -146,54 +151,30 @@ const PricingForm = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Tipo de Precificação
               </label>
-              <input
-                type="radio"
-                id="option1"
-                value="Agrupada"
-                checked={selectedValue === 'Agrupada'}
-                onChange={() => handleRadioChange('Agrupada')}
-              />
-              <input
-                type="radio"
-                id="option2"
-                value="Não Agrupada"
-                checked={selectedValue === 'Não Agrupada'}
-                onChange={() => handleRadioChange('Não Agrupada')}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Data de Precificação
-              </label>
-              <DatePicker
-                onChange={(date) => handleDateChange('pricingDate', date)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                dateFormat="dd/MM/yyyy"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                placeholderText="Selecione a data"
-                locale="pt-BR"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Data de Demanda
-              </label>
-              <DatePicker
-                onChange={(date) => handleDateChange('demandDate', date)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                dateFormat="dd/MM/yyyy"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                placeholderText="Selecione a data"
-                locale="pt-BR"
-                required
-              />
+              <div className="mt-1 flex items-center">
+                <label className="mr-2">
+                  <input
+                    type="radio"
+                    name="selectedValue"
+                    value="Agrupada"
+                    checked={selectedValue === 'Agrupada'}
+                    onChange={handleChange}
+                    className="mr-1"
+                  />
+                  Agrupada
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="selectedValue"
+                    value="Não Agrupada"
+                    checked={selectedValue === 'Não Agrupada'}
+                    onChange={handleChange}
+                    className="mr-1"
+                  />
+                  Não Agrupada
+                </label>
+              </div>
             </div>
           </div>
           {units.map((unit, index) => (
@@ -216,9 +197,9 @@ const PricingForm = () => {
                       className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
-                    {errors[`${field}${index}`] && (
+                    {errors[index]?.[field] && (
                       <p className="text-red-500 text-sm">
-                        {errors[`${field}${index}`]}
+                        {errors[index][field]}
                       </p>
                     )}
                   </div>
@@ -239,9 +220,9 @@ const PricingForm = () => {
                       className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
-                    {errors[`${field}${index}`] && (
+                    {errors[index]?.[field] && (
                       <p className="text-red-500 text-sm">
-                        {errors[`${field}${index}`]}
+                        {errors[index][field]}
                       </p>
                     )}
                   </div>
@@ -267,9 +248,9 @@ const PricingForm = () => {
                       className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
-                    {errors[`${field}${index}`] && (
+                    {errors[index]?.[field] && (
                       <p className="text-red-500 text-sm">
-                        {errors[`${field}${index}`]}
+                        {errors[index][field]}
                       </p>
                     )}
                   </div>
@@ -291,9 +272,9 @@ const PricingForm = () => {
                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                       />
-                      {errors[`${tir}${index}`] && (
+                      {errors[index]?.[tir] && (
                         <p className="text-red-500 text-sm">
-                          {errors[`${tir}${index}`]}
+                          {errors[index][tir]}
                         </p>
                       )}
                     </div>
@@ -306,7 +287,9 @@ const PricingForm = () => {
                 </label>
                 <input
                   type="file"
-                  onChange={handleFileUpload}
+                  onChange={(e) =>
+                    console.log('File uploaded:', e.target.files[0])
+                  }
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>

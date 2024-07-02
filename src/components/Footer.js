@@ -1,12 +1,10 @@
-// src/components/Footer.js
 import React from 'react';
-import '../styles/Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="footer">
-      <div className="footer-bottom">
-        <p>
+    <footer className="bg-gray-800 py-2 text-center text-xs">
+      <div className="m-0 p-0">
+        <p className="text-white">
           &copy; {new Date().getFullYear()} Preço&Risco. All rights reserved.
         </p>
       </div>

@@ -6,14 +6,15 @@ import {
   Routes,
   Navigate,
 } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
 
+// Importing components directly
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PricingForm from './pages/PricingForm';
 import Implantation from './pages/Implantation';
 import Test from './pages/Pricing';
-import MainLayout from './layouts/MainLayout';
 
 const App = () => {
   return (
@@ -28,14 +29,7 @@ const App = () => {
             </MainLayout>
           }
         />
-        <Route
-          path="/login"
-          element={
-            <MainLayout>
-              <Login />
-            </MainLayout>
-          }
-        />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/register"
           element={
