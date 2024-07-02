@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import '../styles/Pricing.css';
+import PricingForm from '../components/PricingForm';
 
 const Test = () => {
   const [apiResponse, setApiResponse] = useState(null);
@@ -78,6 +79,7 @@ const Test = () => {
 
   return (
     <div className="Test">
+      <PricingForm />
       <div {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />
         <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
