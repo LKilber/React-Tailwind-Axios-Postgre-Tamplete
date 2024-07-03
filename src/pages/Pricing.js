@@ -5,11 +5,11 @@ import axios from 'axios';
 import '../styles/Pricing.css';
 import PricingForm from '../components/PricingForm';
 
-const Test = () => {
+const Pricing = () => {
   const [apiResponse, setApiResponse] = useState(null);
   const [apiResponseInadimFlow, setApiResponseInadimFlow] = useState(null);
   const [apiResponseRoll, setApiResponseRoll] = useState(null);
-
+  const [excelData, setExcelData] = useState(null);
   const [isLoading, setLoading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -22,6 +22,8 @@ const Test = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet);
+
+      setExcelData(json);
 
       setLoading(true);
 
@@ -78,8 +80,8 @@ const Test = () => {
   };
 
   return (
-    <div className="Test">
-      <PricingForm />
+    <div className="Pricing">
+      <PricingForm excelData={excelData} />
       <div {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />
         <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
@@ -166,11 +168,11 @@ const Test = () => {
                   <tr key={index}>
                     <td>{item.data_ref}</td>
                     <td>{formatCurrency(item.recebiveis)}</td>
-                    <td>{item.d0}</td>
-                    <td>{item.d30}</td>
-                    <td>{item.d60}</td>
-                    <td>{item.d90}</td>
-                    <td>{item.d120}</td>
+                    <td>{formatPercentage(item.d0)}</td>
+                    <td>{formatPercentage(item.d30)}</td>
+                    <td>{formatPercentage(item.d60)}</td>
+                    <td>{formatPercentage(item.d90)}</td>
+                    <td>{formatPercentage(item.d120)}</td>
                   </tr>
                 ))}
             </tbody>
@@ -181,4 +183,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default Pricing;

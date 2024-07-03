@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import * as XLSX from 'xlsx';
 
-const PricingForm = () => {
+const PricingForm = ({ excelData }) => {
   const [formState, setFormState] = useState({
     units: [],
     errors: {},
-    percentages: {
-      lessThanZero: 0,
-      zeroToThirty: 0,
-      greaterThanThirty: 0,
-    },
+    financialData: excelData,
+    pricingDate: new Date(),
+    demandDate: new Date(),
   });
+
+  useEffect(() => {
+    if (excelData) {
+      setFormState((prev) => ({ ...prev, financialData: excelData }));
+    }
+  }, [excelData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,8 +49,6 @@ const PricingForm = () => {
         tir4: '',
         tir5: '',
         tir6: '',
-        financialDataType: '',
-        financialData: null,
       })),
     }));
   };
@@ -61,93 +64,8 @@ const PricingForm = () => {
     setFormState((prev) => ({ ...prev, units: newUnits }));
   };
 
-  const parseExcelDate = (serial) => {
-    const excelStartDate = new Date(1899, 11, 30);
-    const date = new Date(excelStartDate.getTime() + serial * 86400000);
-    return date;
-  };
-
-  const handleFileChange = (index, file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      const headers = json[0];
-      const responsibleIndex = headers.indexOf('responsible');
-      const paymentDateIndex = headers.indexOf('payment_date');
-      const dueDateIndex = headers.indexOf('due_date');
-
-      if (
-        responsibleIndex !== -1 &&
-        paymentDateIndex !== -1 &&
-        dueDateIndex !== -1
-      ) {
-        const paymentData = {};
-
-        json.slice(1).forEach((row) => {
-          const responsible = row[responsibleIndex];
-          const paymentDate = parseExcelDate(row[paymentDateIndex]);
-          const dueDate = parseExcelDate(row[dueDateIndex]);
-
-          if (!isNaN(paymentDate) && !isNaN(dueDate)) {
-            const daysDiff = (paymentDate - dueDate) / (1000 * 60 * 60 * 24); // Difference in days
-            if (!paymentData[responsible]) {
-              paymentData[responsible] = [];
-            }
-            paymentData[responsible].push(daysDiff);
-          }
-        });
-
-        const averagePayments = Object.keys(paymentData).map((responsible) => {
-          const total = paymentData[responsible].reduce(
-            (acc, val) => acc + val,
-            0,
-          );
-          return {
-            responsible,
-            averagePayment: total / paymentData[responsible].length,
-          };
-        });
-
-        const percentages = {
-          lessThanZero: 0,
-          zeroToThirty: 0,
-          greaterThanThirty: 0,
-        };
-        const totalResponsibles = averagePayments.length;
-
-        averagePayments.forEach(({ averagePayment }) => {
-          if (averagePayment < 0) {
-            percentages.lessThanZero += 1;
-          } else if (averagePayment >= 0 && averagePayment <= 30) {
-            percentages.zeroToThirty += 1;
-          } else if (averagePayment > 30) {
-            percentages.greaterThanThirty += 1;
-          }
-        });
-
-        percentages.lessThanZero =
-          (percentages.lessThanZero / totalResponsibles) * 100;
-        percentages.zeroToThirty =
-          (percentages.zeroToThirty / totalResponsibles) * 100;
-        percentages.greaterThanThirty =
-          (percentages.greaterThanThirty / totalResponsibles) * 100;
-
-        // Update the state with the parsed data and percentages
-        const newUnits = [...formState.units];
-        newUnits[index] = { ...newUnits[index], financialData: json };
-        setFormState((prev) => ({ ...prev, units: newUnits, percentages }));
-      } else {
-        console.error(
-          'Columns responsible, payment_date, or due_date not found in the Excel file.',
-        );
-      }
-    };
-    reader.readAsArrayBuffer(file);
+  const handleDateChange = (date, name) => {
+    setFormState((prev) => ({ ...prev, [name]: date }));
   };
 
   const validate = () => {
@@ -187,13 +105,13 @@ const PricingForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formState);
+    console.log(formState);
     if (validate()) {
       console.log('Form submitted:', formState);
     }
   };
 
-  const { units, errors, percentages } = formState;
+  const { units, errors } = formState;
 
   const placeholders = {
     cnpj: 'CNPJ',
@@ -218,97 +136,143 @@ const PricingForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div
+        className="w-full max-w-5xl bg-white p-8 rounded-lg shadow-lg overflow-y-auto"
+        style={{ maxHeight: '90vh' }}
+      >
+        <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+          Formulário de Precificação
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Escola
+              </label>
               <input
                 type="text"
                 placeholder="Escola"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 name="schoolName"
                 value={formState.schoolName}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div>
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ID da Escola
+              </label>
               <input
                 type="text"
                 placeholder="ID da Escola"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 name="schoolID"
                 value={formState.schoolID}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div>
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Alerta de Risco
+              </label>
               <select
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 name="riskAlert"
                 value={formState.riskAlert}
                 onChange={handleChange}
                 required
               >
-                <option value="">Alerta de Risco</option>
+                <option value="">Selecione</option>
                 <option value="high">Alto</option>
-                <option value="medio">Médio</option>
+                <option value="medium">Médio</option>
                 <option value="low">Baixo</option>
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Quantidade de Unidades
+              </label>
               <input
                 type="number"
                 placeholder="Quantidade de Unidades"
                 name="quantity"
                 value={formState.quantity}
                 onChange={handleQuantityChange}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 required
                 min="0"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tipo de Precificação
-              </label>
-              <div className="mt-1 flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="selectedValue"
-                    value="Agrupada"
-                    checked={formState.selectedValue === 'Agrupada'}
-                    onChange={handleChange}
-                    className="mr-1"
-                  />
+            <div className="relative flex items-center space-x-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="selectedValue"
+                  value="Agrupada"
+                  checked={formState.selectedValue === 'Agrupada'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm font-medium text-gray-700">
                   Agrupada
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="selectedValue"
-                    value="Não Agrupada"
-                    checked={formState.selectedValue === 'Não Agrupada'}
-                    onChange={handleChange}
-                    className="mr-1"
-                  />
+                </span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="selectedValue"
+                  value="Não Agrupada"
+                  checked={formState.selectedValue === 'Não Agrupada'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm font-medium text-gray-700">
                   Não Agrupada
-                </label>
-              </div>
+                </span>
+              </label>
             </div>
-            <div>
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Observações
+              </label>
               <input
                 type="text"
                 placeholder="Observações"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 name="observations"
                 value={formState.observations}
                 onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Data da Precificação
+              </label>
+              <DatePicker
+                selected={formState.pricingDate}
+                onChange={(date) => handleDateChange(date, 'pricingDate')}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Data de Precificação"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Data da Demanda
+              </label>
+              <DatePicker
+                selected={formState.demandDate}
+                onChange={(date) => handleDateChange(date, 'demandDate')}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Data de Demanda"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -318,9 +282,9 @@ const PricingForm = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 Unidade {index + 1} - U{unit.cnpj}N{index + 1}R
               </h3>
-              <div className="grid grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {['cnpj', 'inep', 'fantasyName', 'companyName'].map((field) => (
-                  <div key={field}>
+                  <div key={field} className="relative">
                     <input
                       type="text"
                       placeholder={placeholders[field]}
@@ -328,7 +292,7 @@ const PricingForm = () => {
                       onChange={(e) =>
                         handleUnitChange(index, field, e.target.value)
                       }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full pl-2 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                     {errors[index]?.[field] && (
@@ -339,9 +303,9 @@ const PricingForm = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                 {['cep', 'endereco', 'cidade', 'uf'].map((field) => (
-                  <div key={field}>
+                  <div key={field} className="relative">
                     <input
                       type="text"
                       placeholder={placeholders[field]}
@@ -349,7 +313,7 @@ const PricingForm = () => {
                       onChange={(e) =>
                         handleUnitChange(index, field, e.target.value)
                       }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full pl-2 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                     {errors[index]?.[field] && (
@@ -360,14 +324,14 @@ const PricingForm = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                 {[
                   'executiveName',
                   'studentsQtt',
                   'discountPct',
                   'ticketAvg',
                 ].map((field) => (
-                  <div key={field}>
+                  <div key={field} className="relative">
                     <input
                       type="text"
                       placeholder={placeholders[field]}
@@ -375,7 +339,7 @@ const PricingForm = () => {
                       onChange={(e) =>
                         handleUnitChange(index, field, e.target.value)
                       }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full pl-2 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                     {errors[index]?.[field] && (
@@ -386,10 +350,10 @@ const PricingForm = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mt-4">
                 {['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].map(
                   (field) => (
-                    <div key={field}>
+                    <div key={field} className="relative">
                       <input
                         type="text"
                         placeholder={placeholders[field]}
@@ -397,7 +361,7 @@ const PricingForm = () => {
                         onChange={(e) =>
                           handleUnitChange(index, field, e.target.value)
                         }
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full pl-2 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                       />
                       {errors[index]?.[field] && (
@@ -409,66 +373,22 @@ const PricingForm = () => {
                   ),
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <input
-                  type="file"
-                  onChange={(e) => handleFileChange(index, e.target.files[0])}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Tipo de Precificação
-                  </label>
-                  <div className="mt-1 flex items-center">
-                    {['Consolidado', 'Detalhado'].map((type) => (
-                      <label key={type} className="mr-2">
-                        <input
-                          type="radio"
-                          name={`selectedValue-${index}`}
-                          value={type}
-                          checked={unit.financialDataType === type}
-                          onChange={(e) =>
-                            handleUnitChange(
-                              index,
-                              'financialDataType',
-                              e.target.value,
-                            )
-                          }
-                          className="mr-1"
-                        />
-                        {type}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2>Percentages</h2>
-                <p>
-                  Percentage of responsible persons with average payment 0:{' '}
-                  {percentages.lessThanZero}%
-                </p>
-                <p>
-                  Percentage of responsible persons with average payment between
-                  0 and 30: {percentages.zeroToThirty}%
-                </p>
-                <p>
-                  Percentage of responsible persons with average payment 30:{' '}
-                  {percentages.greaterThanThirty}%
-                </p>
-              </div>
             </div>
           ))}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold text-center hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Submit
+            Enviar
           </button>
         </form>
       </div>
     </div>
   );
+};
+
+PricingForm.propTypes = {
+  excelData: PropTypes.array,
 };
 
 export default PricingForm;

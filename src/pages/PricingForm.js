@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import * as XLSX from 'xlsx';
 
 const PricingForm = () => {
   const [formState, setFormState] = useState({
@@ -44,8 +43,6 @@ const PricingForm = () => {
         tir4: '',
         tir5: '',
         tir6: '',
-        financialDataType: '',
-        financialData: null,
       })),
     }));
   };
@@ -59,95 +56,6 @@ const PricingForm = () => {
     }
 
     setFormState((prev) => ({ ...prev, units: newUnits }));
-  };
-
-  const parseExcelDate = (serial) => {
-    const excelStartDate = new Date(1899, 11, 30);
-    const date = new Date(excelStartDate.getTime() + serial * 86400000);
-    return date;
-  };
-
-  const handleFileChange = (index, file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      const headers = json[0];
-      const responsibleIndex = headers.indexOf('responsible');
-      const paymentDateIndex = headers.indexOf('payment_date');
-      const dueDateIndex = headers.indexOf('due_date');
-
-      if (
-        responsibleIndex !== -1 &&
-        paymentDateIndex !== -1 &&
-        dueDateIndex !== -1
-      ) {
-        const paymentData = {};
-
-        json.slice(1).forEach((row) => {
-          const responsible = row[responsibleIndex];
-          const paymentDate = parseExcelDate(row[paymentDateIndex]);
-          const dueDate = parseExcelDate(row[dueDateIndex]);
-
-          if (!isNaN(paymentDate) && !isNaN(dueDate)) {
-            const daysDiff = (paymentDate - dueDate) / (1000 * 60 * 60 * 24); // Difference in days
-            if (!paymentData[responsible]) {
-              paymentData[responsible] = [];
-            }
-            paymentData[responsible].push(daysDiff);
-          }
-        });
-
-        const averagePayments = Object.keys(paymentData).map((responsible) => {
-          const total = paymentData[responsible].reduce(
-            (acc, val) => acc + val,
-            0,
-          );
-          return {
-            responsible,
-            averagePayment: total / paymentData[responsible].length,
-          };
-        });
-
-        const percentages = {
-          lessThanZero: 0,
-          zeroToThirty: 0,
-          greaterThanThirty: 0,
-        };
-        const totalResponsibles = averagePayments.length;
-
-        averagePayments.forEach(({ averagePayment }) => {
-          if (averagePayment < 0) {
-            percentages.lessThanZero += 1;
-          } else if (averagePayment >= 0 && averagePayment <= 30) {
-            percentages.zeroToThirty += 1;
-          } else if (averagePayment > 30) {
-            percentages.greaterThanThirty += 1;
-          }
-        });
-
-        percentages.lessThanZero =
-          (percentages.lessThanZero / totalResponsibles) * 100;
-        percentages.zeroToThirty =
-          (percentages.zeroToThirty / totalResponsibles) * 100;
-        percentages.greaterThanThirty =
-          (percentages.greaterThanThirty / totalResponsibles) * 100;
-
-        // Update the state with the parsed data and percentages
-        const newUnits = [...formState.units];
-        newUnits[index] = { ...newUnits[index], financialData: json };
-        setFormState((prev) => ({ ...prev, units: newUnits, percentages }));
-      } else {
-        console.error(
-          'Columns responsible, payment_date, or due_date not found in the Excel file.',
-        );
-      }
-    };
-    reader.readAsArrayBuffer(file);
   };
 
   const validate = () => {
@@ -411,39 +319,6 @@ const PricingForm = () => {
                     </div>
                   ),
                 )}
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <input
-                  type="file"
-                  onChange={(e) => handleFileChange(index, e.target.files[0])}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Tipo de Precificação
-                  </label>
-                  <div className="mt-1 flex items-center">
-                    {['Consolidado', 'Detalhado'].map((type) => (
-                      <label key={type} className="mr-2">
-                        <input
-                          type="radio"
-                          name={`selectedValue-${index}`}
-                          value={type}
-                          checked={unit.financialDataType === type}
-                          onChange={(e) =>
-                            handleUnitChange(
-                              index,
-                              'financialDataType',
-                              e.target.value,
-                            )
-                          }
-                          className="mr-1"
-                        />
-                        {type}
-                      </label>
-                    ))}
-                  </div>
-                </div>
               </div>
               <div>
                 <h2>Percentages</h2>
