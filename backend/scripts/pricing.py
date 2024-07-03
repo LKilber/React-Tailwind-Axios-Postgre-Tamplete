@@ -13,30 +13,30 @@ def pricing(file):
     except Exception as err:
         print(err)
 
-    df['Vencimento'] = pd.to_datetime(df['Vencimento'])
-    df['DataPagamento'] = pd.to_datetime(df['DataPagamento'])
-    df['Valor Total'] = df['Valor Total'].astype(float)
-    df['Valor Pago'] = df['Valor Pago'].astype(float)
-    df['Ano'] = df['Ano'].astype(int)
-    df = df[df['Ano'] == 2023]
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df['payment_date'] = pd.to_datetime(df['payment_date'])
+    df['total_value'] = df['total_value'].astype(float)
+    df['payment_value'] = df['payment_value'].astype(float)
+    df['year'] = df['year'].astype(int)
+    df = df[df['year'] == 2023]
 
     def data_vencimento_ref(row):
-        ano_vencimento = row['Vencimento'].year
-        ano_competencia = row['Ano']
+        ano_vencimento = row['due_date'].year
+        ano_competencia = row['year']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
             return datetime(ano_competencia, 12, 1)
         else:
-            return datetime(ano_vencimento, row['Vencimento'].month, 1)
+            return datetime(ano_vencimento, row['due_date'].month, 1)
 
     df['data_vencimento_ref'] = df.apply(data_vencimento_ref, axis=1)
 
     def data_pagamento_ref(row):
-        if pd.isna(row['DataPagamento']):
+        if pd.isna(row['payment_date']):
             return None
         
-        data_pagamento_ajustada = pd.to_datetime(row['DataPagamento'].strftime('%Y-%m-01'))
+        data_pagamento_ajustada = pd.to_datetime(row['payment_date'].strftime('%Y-%m-01'))
         data_vencimento_ref = row['data_vencimento_ref']
 
         if data_pagamento_ajustada < data_vencimento_ref:
@@ -46,10 +46,10 @@ def pricing(file):
         
     df['data_pagamento_ref'] = df.apply(data_pagamento_ref, axis=1)
 
-    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('Valor Total', 'sum')).reset_index()
+    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('total_value', 'sum')).reset_index()
     df_recebiveis['recebiveis acc'] = df_recebiveis['recebiveis'].cumsum()
 
-    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('Valor Total', 'sum')).reset_index()
+    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('total_value', 'sum')).reset_index()
     df_pagamentos['pagamentos acc'] = df_pagamentos['pagamentos'].cumsum()
 
     df_financ = pd.merge(df_recebiveis, df_pagamentos, left_on='data_vencimento_ref', right_on='data_pagamento_ref', how='outer')
@@ -149,30 +149,30 @@ def inadim_flow(file):
     except Exception as err:
         print(err)
 
-    df['Vencimento'] = pd.to_datetime(df['Vencimento'])
-    df['DataPagamento'] = pd.to_datetime(df['DataPagamento'])
-    df['Valor Total'] = df['Valor Total'].astype(float)
-    df['Valor Pago'] = df['Valor Pago'].astype(float)
-    df['Ano'] = df['Ano'].astype(int)
-    df = df[df['Ano'] == 2023]
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df['payment_date'] = pd.to_datetime(df['payment_date'])
+    df['total_value'] = df['total_value'].astype(float)
+    df['payment_value'] = df['payment_value'].astype(float)
+    df['year'] = df['year'].astype(int)
+    df = df[df['year'] == 2023]
 
     def data_vencimento_ref(row):
-        ano_vencimento = row['Vencimento'].year
-        ano_competencia = row['Ano']
+        ano_vencimento = row['due_date'].year
+        ano_competencia = row['year']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
             return datetime(ano_competencia, 12, 1)
         else:
-            return datetime(ano_vencimento, row['Vencimento'].month, 1)
+            return datetime(ano_vencimento, row['due_date'].month, 1)
 
     df['data_vencimento_ref'] = df.apply(data_vencimento_ref, axis=1)
 
     def data_pagamento_ref(row):
-        if pd.isna(row['DataPagamento']):
+        if pd.isna(row['payment_date']):
             return None
         
-        data_pagamento_ajustada = pd.to_datetime(row['DataPagamento'].strftime('%Y-%m-01'))
+        data_pagamento_ajustada = pd.to_datetime(row['payment_date'].strftime('%Y-%m-01'))
         data_vencimento_ref = row['data_vencimento_ref']
 
         if data_pagamento_ajustada < data_vencimento_ref:
@@ -182,10 +182,10 @@ def inadim_flow(file):
         
     df['data_pagamento_ref'] = df.apply(data_pagamento_ref, axis=1)
 
-    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('Valor Total', 'sum')).reset_index()
+    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('total_value', 'sum')).reset_index()
     df_recebiveis['recebiveis_acc'] = df_recebiveis['recebiveis'].cumsum()
 
-    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('Valor Total', 'sum')).reset_index()
+    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('total_value', 'sum')).reset_index()
     df_pagamentos['pagamentos_acc'] = df_pagamentos['pagamentos'].cumsum()
 
     df_financ = pd.merge(df_recebiveis, df_pagamentos, left_on='data_vencimento_ref', right_on='data_pagamento_ref', how='outer')
@@ -210,46 +210,46 @@ def roll(file):
     except Exception as err:
         print(err)
 
-    df['Vencimento'] = pd.to_datetime(df['Vencimento'])
-    df['DataPagamento'] = pd.to_datetime(df['DataPagamento'])
-    df['Valor Total'] = df['Valor Total'].astype(float)
-    df['Valor Pago'] = df['Valor Pago'].astype(float)
-    df['Desconto'] = df['Desconto'].astype(float)
-    df['totalcomdesconto'] = df['Valor Total'] - df['Desconto']
-    df['Ano'] = df['Ano'].astype(int)
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df['payment_date'] = pd.to_datetime(df['payment_date'])
+    df['total_value'] = df['total_value'].astype(float)
+    df['payment_value'] = df['payment_value'].astype(float)
+    df['discount'] = df['discount'].astype(float)
+    df['totalcomdesconto'] = df['total_value'] - df['discount']
+    df['year'] = df['year'].astype(int)
 
     def data_vencimento_ref(row):
-        ano_vencimento = row['Vencimento'].year
-        ano_competencia = row['Ano']
+        ano_vencimento = row['due_date'].year
+        ano_competencia = row['year']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
             return datetime(ano_competencia, 12, 1)
         else:
-            return datetime(ano_vencimento, row['Vencimento'].month, 1)
+            return datetime(ano_vencimento, row['due_date'].month, 1)
         
     df['data_ref'] = df.apply(data_vencimento_ref, axis=1)
 
     conditions = [
-    df['DataPagamento'].notna(),
-    df['DataPagamento'].isna()
+    df['payment_date'].notna(),
+    df['payment_date'].isna()
     ]
     choices = [
-        (df['DataPagamento'] - df['Vencimento']).dt.days,
-        (datetime.now().date() - df['Vencimento'].dt.date).apply(lambda x: x.days)
+        (df['payment_date'] - df['due_date']).dt.days,
+        (datetime.now().date() - df['due_date'].dt.date).apply(lambda x: x.days)
     ]
     df['atraso'] = np.select(conditions, choices, default='No data')
     df['atraso'] = df['atraso'].astype(float)
 
     def calculate_inadim(df, atraso):
-        datavencimento_com_atraso = df['Vencimento'] + timedelta(days=atraso)
+        datavencimento_com_atraso = df['due_date'] + timedelta(days=atraso)
 
-        tpv_vencido = df[(df['Vencimento'] < datetime.now())]
+        tpv_vencido = df[(df['due_date'] < datetime.now())]
         tpv_vencido = tpv_vencido['totalcomdesconto'].sum()
 
         tpv_inadimplente = df[
-            (df['Vencimento'] < datetime.now()) &
-            ((df['DataPagamento'].isna()) | (df['DataPagamento'] > datavencimento_com_atraso)) &
+            (df['due_date'] < datetime.now()) &
+            ((df['payment_date'].isna()) | (df['payment_date'] > datavencimento_com_atraso)) &
             (df['atraso'] >= atraso)
         ]
         
@@ -270,10 +270,6 @@ def roll(file):
 
     result_rolagem = result_rolagem[result_rolagem['data_ref'].dt.date < datetime.now().date().replace(day=1)]
     result_rolagem = result_rolagem.tail(15)
-
-    colunas_para_formatar = ['d0', 'd30', 'd60', 'd90', 'd120']
-    for coluna in colunas_para_formatar:
-        result_rolagem[coluna] = np.where(result_rolagem[coluna] == 0, "-", (round(result_rolagem[coluna] * 100, 1)).astype(str) + "%")
 
     result_rolagem['data_ref'] = result_rolagem['data_ref'].dt.strftime("%m/%Y")
     return result_rolagem

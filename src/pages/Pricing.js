@@ -33,7 +33,7 @@ const Pricing = () => {
         formData.append('json', JSON.stringify(json));
 
         const responseFlask = await axios.post(
-          'http://localhost:5001/api/pricing',
+          'http://192.168.19.183:5001/api/pricing',
           formData,
           {
             headers: {
@@ -71,12 +71,16 @@ const Pricing = () => {
   };
 
   const formatPercentage = (value) => {
-    return (
-      (value * 100).toLocaleString('pt-BR', {
-        minimumFractionDigits: 1,
-        maximumFractionDigits: 1,
-      }) + '%'
-    );
+    if (value > 0) {
+      return (
+        (value * 100).toLocaleString('pt-BR', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }) + '%'
+      );
+    } else {
+      return '-';
+    }
   };
 
   return (
