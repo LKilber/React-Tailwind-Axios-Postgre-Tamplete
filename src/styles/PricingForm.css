@@ -1,0 +1,14 @@
+/* PricingForm.css */
+.transition-max-height {
+  transition: max-height 0.5s ease-in-out;
+  overflow: hidden;
+}
+.max-h-0 {
+  max-height: 0;
+}
+.max-h-screen {
+  max-height: 100vh;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}

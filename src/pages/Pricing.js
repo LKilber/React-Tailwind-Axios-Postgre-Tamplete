@@ -9,8 +9,8 @@ const Pricing = () => {
   const [apiResponse, setApiResponse] = useState(null);
   const [apiResponseInadimFlow, setApiResponseInadimFlow] = useState(null);
   const [apiResponseRoll, setApiResponseRoll] = useState(null);
-  const [excelData, setExcelData] = useState(null);
   const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -23,9 +23,8 @@ const Pricing = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet);
 
-      setExcelData(json);
-
       setLoading(true);
+      setError(null);
 
       try {
         const formData = new FormData();
@@ -47,6 +46,7 @@ const Pricing = () => {
         setApiResponseRoll(responseFlask.data.roll);
       } catch (err) {
         console.error('Erro ao enviar para a API Flask:', err.message);
+        setError('Erro ao enviar para a API Flask: ' + err.message);
         setApiResponse(null);
         setApiResponseInadimFlow(null);
         setApiResponseRoll(null);
@@ -61,6 +61,7 @@ const Pricing = () => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: '.xlsx, .xls',
+    maxFiles: 1,
   });
 
   const formatCurrency = (value) => {
@@ -85,7 +86,7 @@ const Pricing = () => {
 
   return (
     <div className="Pricing">
-      <PricingForm excelData={excelData} />
+      <PricingForm />
       <div {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />
         <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
@@ -94,6 +95,8 @@ const Pricing = () => {
       {isLoading && (
         <p className="loading">Aguardando resposta do servidor...</p>
       )}
+
+      {error && <p className="error">{error}</p>}
 
       {apiResponse && (
         <div className="response">

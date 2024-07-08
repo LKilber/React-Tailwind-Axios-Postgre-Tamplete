@@ -12,7 +12,6 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import PricingForm from './pages/PricingForm';
 import Implantation from './pages/Implantation';
 import Test from './pages/Pricing';
 
@@ -35,14 +34,6 @@ const App = () => {
           element={
             <MainLayout>
               <Register />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/pricing"
-          element={
-            <MainLayout>
-              <PricingForm />
             </MainLayout>
           }
         />

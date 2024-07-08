@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pandas as pd
+import requests
 from scripts.pricing import pricing, inadim_flow, roll
 
 app = Flask(__name__)
-CORS(app)  # Permite que o Flask aceite solicitações de outros domínios
+CORS(app)
 
 @app.route('/')
 def index():
@@ -37,6 +38,18 @@ def excel_endpoint():
     except Exception as e:
         app.logger.error('Erro ao processar o arquivo: %s', str(e))
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/fetch_cnpj_data/<cnpj>')
+def fetch_cnpj_data(cnpj):
+    url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise HTTPError for bad responses
+        data = response.json()
+        return jsonify(data)
+    except requests.exceptions.RequestException as e:
+        app.logger.error('Erro ao buscar dados do CNPJ: %s', str(e))
+        return jsonify({'error': 'Erro ao buscar dados do CNPJ', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
