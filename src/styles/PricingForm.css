@@ -12,3 +12,19 @@
 .rotate-180 {
   transform: rotate(180deg);
 }
+
+.dropzone {
+  border: 2px dashed #007bff;
+  padding: 25px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: #e9f5ff;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.dropzone.bg-green-200 {
+  background-color: #e6ffed;
+}

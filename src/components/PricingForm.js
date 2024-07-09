@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import '../styles/PricingForm.css';
 import axios from 'axios';
+import '../styles/PricingForm.css';
+import UnitForm from './UnitForm'; // Import the UnitForm component
 
 const PricingForm = () => {
   const [formState, setFormState] = useState({
     units: [],
     errors: {},
+    schoolName: '',
+    schoolID: '',
+    riskAlert: '',
+    quantity: 0,
+    selectedValue: '',
+    observations: '',
   });
 
   const [expandedUnits, setExpandedUnits] = useState([]);
@@ -87,14 +91,16 @@ const PricingForm = () => {
       const unitErrors = {};
       const requiredFields = [
         'cnpj',
-        'schoolName',
-        'executiveName',
-        'pricingDate',
-        'demandDate',
+        'fantasyName',
+        'companyName',
         'cep',
         'endereco',
         'cidade',
         'uf',
+        'executiveName',
+        'studentsQtt',
+        'discountPct',
+        'ticketAvg',
         'tir0',
         'tir1',
         'tir2',
@@ -118,9 +124,9 @@ const PricingForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formState);
     if (validate()) {
       console.log('Form submitted:', formState);
+      // Perform form submission logic here
     }
   };
 
@@ -133,28 +139,6 @@ const PricingForm = () => {
   };
 
   const { units, errors } = formState;
-
-  const placeholders = {
-    cnpj: 'CNPJ',
-    inep: 'INEP',
-    fantasyName: 'Nome Fantasia',
-    companyName: 'Razão Social',
-    cep: 'CEP',
-    endereco: 'Endereço',
-    cidade: 'Cidade',
-    uf: 'UF',
-    executiveName: 'Nome do Executivo',
-    studentsQtt: 'Quantidade de Alunos',
-    discountPct: 'Porcentagem de Desconto',
-    ticketAvg: 'Média do Ticket',
-    tir0: 'TIR 0',
-    tir1: 'TIR 1',
-    tir2: 'TIR 2',
-    tir3: 'TIR 3',
-    tir4: 'TIR 4',
-    tir5: 'TIR 5',
-    tir6: 'TIR 6',
-  };
 
   return (
     <div className="w-full bg-white p-8 rounded-lg shadow-lg">
@@ -195,7 +179,7 @@ const PricingForm = () => {
             >
               <option value="">Alerta de Risco</option>
               <option value="high">Alto</option>
-              <option value="medio">Médio</option>
+              <option value="medium">Médio</option>
               <option value="low">Baixo</option>
             </select>
           </div>
@@ -255,123 +239,21 @@ const PricingForm = () => {
         </div>
 
         {units.map((unit, index) => (
-          <div key={index} className="border-t border-gray-300 pt-4 mt-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Unidade {index + 1} - U{unit.cnpj}N{index + 1}R
-              </h3>
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                onClick={() => toggleExpandUnit(index)}
-                className={`text-blue-500 cursor-pointer transform transition-transform duration-200 ${
-                  expandedUnits[index] ? 'rotate-180' : ''
-                }`}
-              />
-            </div>
-            <div
-              className={`transition-max-height duration-500 ease-in-out overflow-hidden ${
-                expandedUnits[index] ? 'max-h-screen' : 'max-h-0'
-              }`}
-            >
-              <div className="grid grid-cols-4 gap-4 mt-4">
-                {['cnpj', 'inep', 'fantasyName', 'companyName'].map((field) => (
-                  <div key={field}>
-                    <input
-                      type="text"
-                      placeholder={placeholders[field]}
-                      value={unit[field]}
-                      onChange={(e) =>
-                        handleUnitChange(index, field, e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[index]?.[field] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[index][field]}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-4 gap-4 mt-4">
-                {['cep', 'endereco', 'cidade', 'uf'].map((field) => (
-                  <div key={field}>
-                    <input
-                      type="text"
-                      placeholder={placeholders[field]}
-                      value={unit[field]}
-                      onChange={(e) =>
-                        handleUnitChange(index, field, e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[index]?.[field] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[index][field]}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-4 gap-4 mt-4">
-                {[
-                  'executiveName',
-                  'studentsQtt',
-                  'discountPct',
-                  'ticketAvg',
-                ].map((field) => (
-                  <div key={field}>
-                    <input
-                      type="text"
-                      placeholder={placeholders[field]}
-                      value={unit[field]}
-                      onChange={(e) =>
-                        handleUnitChange(index, field, e.target.value)
-                      }
-                      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    {errors[index]?.[field] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[index][field]}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-4 mt-4">
-                {['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].map(
-                  (field) => (
-                    <div key={field}>
-                      <input
-                        type="text"
-                        placeholder={placeholders[field]}
-                        value={unit[field]}
-                        onChange={(e) =>
-                          handleUnitChange(index, field, e.target.value)
-                        }
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                      {errors[index]?.[field] && (
-                        <p className="text-red-500 text-sm">
-                          {errors[index][field]}
-                        </p>
-                      )}
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          </div>
+          <UnitForm
+            key={index}
+            unit={unit}
+            index={index}
+            handleUnitChange={handleUnitChange}
+            errors={errors}
+            expanded={expandedUnits[index]}
+            toggleExpandUnit={toggleExpandUnit}
+          />
         ))}
         <button
           type="submit"
           className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          Submit
+          Enviar
         </button>
       </form>
     </div>
