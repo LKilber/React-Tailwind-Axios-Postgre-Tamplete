@@ -10,8 +10,8 @@ const PricingReport = ({
   const formatCurrency = (value) => `R$ ${value.toFixed(2)}`;
 
   return (
-    <div className="pricing-report">
-      {apiResponse && (
+    <div>
+      {apiResponse && apiResponse.length > 0 && (
         <div className="response">
           <h3>Resposta da API Flask - Taxas:</h3>
           <table>
@@ -22,19 +22,18 @@ const PricingReport = ({
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(apiResponse) &&
-                apiResponse.map((item, index) => (
-                  <tr key={index}>
-                    <td>{formatPercentage(item.tir_objetivo)}</td>
-                    <td>{formatPercentage(item.tk_encontrado)}</td>
-                  </tr>
-                ))}
+              {apiResponse.map((item, index) => (
+                <tr key={index}>
+                  <td>{formatPercentage(item.tir_objetivo)}</td>
+                  <td>{formatPercentage(item.tk_encontrado)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
 
-      {apiResponseInadimFlow && (
+      {apiResponseInadimFlow && apiResponseInadimFlow.length > 0 && (
         <div className="response">
           <h3>Resposta da API Flask - Inadim Flow:</h3>
           <table>
@@ -50,24 +49,23 @@ const PricingReport = ({
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(apiResponseInadimFlow) &&
-                apiResponseInadimFlow.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.data_ref}</td>
-                    <td>{formatCurrency(item.recebiveis)}</td>
-                    <td>{formatCurrency(item.recebiveis_acc)}</td>
-                    <td>{formatCurrency(item.pagamentos)}</td>
-                    <td>{formatCurrency(item.pagamentos_acc)}</td>
-                    <td>{formatCurrency(item.inadim_acc)}</td>
-                    <td>{formatPercentage(item.inadim_pct)}</td>
-                  </tr>
-                ))}
+              {apiResponseInadimFlow.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.data_ref}</td>
+                  <td>{formatCurrency(item.recebiveis)}</td>
+                  <td>{formatCurrency(item.recebiveis_acc)}</td>
+                  <td>{formatCurrency(item.pagamentos)}</td>
+                  <td>{formatCurrency(item.pagamentos_acc)}</td>
+                  <td>{formatCurrency(item.inadim_acc)}</td>
+                  <td>{formatPercentage(item.inadim_pct)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
 
-      {apiResponseRoll && (
+      {apiResponseRoll && apiResponseRoll.length > 0 && (
         <div className="response">
           <h3>Resposta da API Flask - Rolagem:</h3>
           <table>
@@ -83,18 +81,17 @@ const PricingReport = ({
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(apiResponseRoll) &&
-                apiResponseRoll.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.data_ref}</td>
-                    <td>{formatCurrency(item.recebiveis)}</td>
-                    <td>{formatPercentage(item.d0)}</td>
-                    <td>{formatPercentage(item.d30)}</td>
-                    <td>{formatPercentage(item.d60)}</td>
-                    <td>{formatPercentage(item.d90)}</td>
-                    <td>{formatPercentage(item.d120)}</td>
-                  </tr>
-                ))}
+              {apiResponseRoll.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.data_ref}</td>
+                  <td>{formatCurrency(item.recebiveis)}</td>
+                  <td>{formatPercentage(item.d0)}</td>
+                  <td>{formatPercentage(item.d30)}</td>
+                  <td>{formatPercentage(item.d60)}</td>
+                  <td>{formatPercentage(item.d90)}</td>
+                  <td>{formatPercentage(item.d120)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

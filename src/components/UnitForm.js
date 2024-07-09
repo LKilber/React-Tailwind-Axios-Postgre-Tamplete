@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import * as XLSX from 'xlsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import PricingReport from './PricingReport';
 
@@ -11,6 +11,7 @@ const UnitForm = ({
   unit,
   index,
   handleUnitChange,
+  handleUnitDataChange,
   errors,
   expanded,
   toggleExpandUnit,
@@ -23,7 +24,7 @@ const UnitForm = ({
   const [apiResponseInadimFlow, setApiResponseInadimFlow] = useState(null);
   const [apiResponseRoll, setApiResponseRoll] = useState(null);
   const [error, setError] = useState(null);
-  const [reportExpanded, setReportExpanded] = useState(false); // State to control report expansion
+  const [reportExpanded, setReportExpanded] = useState(false);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -39,6 +40,8 @@ const UnitForm = ({
       setFile(file);
       setJson(json);
       setFileUploaded(true);
+
+      handleUnitDataChange(index, json);
     };
 
     reader.readAsArrayBuffer(file);
@@ -172,45 +175,50 @@ const UnitForm = ({
             ),
           )}
         </div>
-        <div
-          {...getRootProps({
-            className: `dropzone ${fileUploaded ? 'bg-green-200' : ''}`,
-          })}
-        >
-          <input {...getInputProps()} />
-          <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
+        <div className="flex items-center mt-4">
+          <div
+            {...getRootProps({
+              className: `dropzone flex-grow ${fileUploaded ? 'bg-green-200' : ''}`,
+            })}
+          >
+            <input {...getInputProps()} />
+            <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleGeneratePricing}
+            className="ml-4 py-7 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Precificar
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleGeneratePricing}
-          className="mt-4 w-full py-3 bg-green-600 text-white rounded-lg font-semibold text-center hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          Precificar
-        </button>
         {isLoading && (
           <p className="loading">Aguardando resposta do servidor...</p>
         )}
         {error && <p className="text-red-500">{error}</p>}
-        {apiResponse && (
-          <div>
-            <button
-              onClick={() => setReportExpanded(!reportExpanded)}
-              className="mt-4 w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {reportExpanded ? 'Esconder Relatório' : 'Mostrar Relatório'}
-            </button>
-            <div
-              className={`transition-max-height duration-500 ease-in-out overflow-hidden ${reportExpanded ? 'max-h-screen' : 'max-h-0'}`}
-            >
-              <PricingReport
-                apiResponse={apiResponse}
-                apiResponseInadimFlow={apiResponseInadimFlow}
-                apiResponseRoll={apiResponseRoll}
-              />
-            </div>
-          </div>
-        )}
       </div>
+      {apiResponse && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setReportExpanded(!reportExpanded)}
+            className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {reportExpanded ? 'Fechar Relatório' : 'Expandir Relatório'}
+            <FontAwesomeIcon
+              icon={reportExpanded ? faChevronUp : faChevronDown}
+              className="ml-2"
+            />
+          </button>
+          {reportExpanded && (
+            <PricingReport
+              apiResponse={apiResponse}
+              apiResponseInadimFlow={apiResponseInadimFlow}
+              apiResponseRoll={apiResponseRoll}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -219,6 +227,7 @@ UnitForm.propTypes = {
   unit: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   handleUnitChange: PropTypes.func.isRequired,
+  handleUnitDataChange: PropTypes.func.isRequired,
   errors: PropTypes.object.isRequired,
   expanded: PropTypes.bool.isRequired,
   toggleExpandUnit: PropTypes.func.isRequired,

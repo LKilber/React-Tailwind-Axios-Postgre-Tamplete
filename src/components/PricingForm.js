@@ -48,6 +48,8 @@ const PricingForm = () => {
         tir4: '',
         tir5: '',
         tir6: '',
+        unitData: '',
+        unitDataType: '',
       })),
     }));
     setExpandedUnits(Array.from({ length: quantity }, () => false));
@@ -81,8 +83,25 @@ const PricingForm = () => {
         }
       }
     }
-
     setFormState({ ...formState, units: newUnits });
+  };
+
+  const handleUnitDataChange = (index, json) => {
+    const dataType = json.some((item) =>
+      Object.prototype.hasOwnProperty.call(item, 'student_name'),
+    )
+      ? 'DETALHADO'
+      : 'CONSOLIDADO';
+
+    setFormState((prevState) => {
+      const newUnits = [...prevState.units];
+      newUnits[index] = {
+        ...newUnits[index],
+        unitData: json,
+        unitDataType: dataType,
+      };
+      return { ...prevState, units: newUnits };
+    });
   };
 
   const validate = () => {
@@ -123,10 +142,10 @@ const PricingForm = () => {
   };
 
   const handleSubmit = (e) => {
+    console.log(formState);
     e.preventDefault();
     if (validate()) {
       console.log('Form submitted:', formState);
-      // Perform form submission logic here
     }
   };
 
@@ -244,6 +263,7 @@ const PricingForm = () => {
             unit={unit}
             index={index}
             handleUnitChange={handleUnitChange}
+            handleUnitDataChange={handleUnitDataChange}
             errors={errors}
             expanded={expandedUnits[index]}
             toggleExpandUnit={toggleExpandUnit}
