@@ -35,7 +35,23 @@ const UnitForm = ({
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet);
+      let json = XLSX.utils.sheet_to_json(worksheet);
+
+      // Format the columns
+      json = json.map((record) => ({
+        year_ref: parseInt(record['year_ref']),
+        student_name: record['student_name'],
+        financial_resp: record['financial_resp'],
+        due_date: isValidExcelDate(record['due_date'])
+          ? formatExcelDate(record['due_date'])
+          : null,
+        original_value: parseFloat(record['original_value']),
+        discount: parseFloat(record['discount']),
+        payment_value: parseFloat(record['payment_value']),
+        payment_date: isValidExcelDate(record['payment_date'])
+          ? formatExcelDate(record['payment_date'])
+          : null,
+      }));
 
       setFile(file);
       setJson(json);
@@ -46,6 +62,15 @@ const UnitForm = ({
 
     reader.readAsArrayBuffer(file);
   }, []);
+
+  const formatExcelDate = (excelDate) => {
+    const date = new Date((excelDate - 25569) * 86400 * 1000);
+    return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  };
+
+  const isValidExcelDate = (value) => {
+    return !isNaN(value) && Number.isInteger(value) && value > 0;
+  };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -99,22 +124,26 @@ const UnitForm = ({
       <div
         className={`transition-max-height duration-500 ease-in-out overflow-hidden ${expanded ? 'max-h-screen' : 'max-h-0'}`}
       >
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          {['cnpj', 'inep', 'fantasyName', 'companyName'].map((field) => (
-            <div key={field}>
-              <input
-                type="text"
-                placeholder={field}
-                value={unit[field]}
-                onChange={(e) => handleUnitChange(index, field, e.target.value)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-              {errors[index]?.[field] && (
-                <p className="text-red-500 text-sm">{errors[index][field]}</p>
-              )}
-            </div>
-          ))}
+        <div className="grid grid-cols-5 gap-4 mt-4">
+          {['cnpj', 'inep', 'spcScore', 'fantasyName', 'companyName'].map(
+            (field) => (
+              <div key={field}>
+                <input
+                  type="text"
+                  placeholder={field}
+                  value={unit[field]}
+                  onChange={(e) =>
+                    handleUnitChange(index, field, e.target.value)
+                  }
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+                {errors[index]?.[field] && (
+                  <p className="text-red-500 text-sm">{errors[index][field]}</p>
+                )}
+              </div>
+            ),
+          )}
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4">
           {['cep', 'endereco', 'cidade', 'uf'].map((field) => (

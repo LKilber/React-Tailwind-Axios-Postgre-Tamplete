@@ -11,8 +11,10 @@ const PricingForm = () => {
     schoolID: '',
     riskAlert: '',
     quantity: 0,
-    selectedValue: '',
+    pricingType: '',
     observations: '',
+    demandDate: '',
+    pricingDate: '',
   });
 
   const [expandedUnits, setExpandedUnits] = useState([]);
@@ -31,6 +33,7 @@ const PricingForm = () => {
         unitId: '',
         cnpj: '',
         inep: '',
+        spcScore: '',
         fantasyName: '',
         companyName: '',
         cep: '',
@@ -50,6 +53,7 @@ const PricingForm = () => {
         tir6: '',
         unitData: '',
         unitDataType: '',
+        pricingId: '',
       })),
     }));
     setExpandedUnits(Array.from({ length: quantity }, () => false));
@@ -61,6 +65,9 @@ const PricingForm = () => {
 
     if (field === 'cnpj') {
       newUnits[index].unitId = `U${value}N${index + 1}R`;
+
+      const formattedDate = formState.pricingDate.replace(/-/g, '');
+      newUnits[index].pricingId = `${newUnits[index].unitId}${formattedDate}P`;
 
       if (value.length === 14) {
         try {
@@ -142,10 +149,18 @@ const PricingForm = () => {
   };
 
   const handleSubmit = (e) => {
-    console.log(formState);
     e.preventDefault();
     if (validate()) {
       console.log('Form submitted:', formState);
+
+      axios
+        .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)
+        .then((response) => {
+          console.log('Form submitted successfully:', response.data);
+        })
+        .catch((error) => {
+          console.error('Error submitting form:', error);
+        });
     }
   };
 
@@ -203,8 +218,11 @@ const PricingForm = () => {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-4 gap-4 mt-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Quantidade de Unidades
+            </label>
             <input
               type="number"
               placeholder="Quantidade de Unidades"
@@ -224,9 +242,9 @@ const PricingForm = () => {
               <label className="inline-flex items-center">
                 <input
                   type="radio"
-                  name="selectedValue"
+                  name="pricingType"
                   value="Agrupada"
-                  checked={formState.selectedValue === 'Agrupada'}
+                  checked={formState.pricingType === 'Agrupada'}
                   onChange={handleChange}
                   className="mr-1"
                 />
@@ -235,9 +253,9 @@ const PricingForm = () => {
               <label className="inline-flex items-center">
                 <input
                   type="radio"
-                  name="selectedValue"
+                  name="pricingType"
                   value="Não Agrupada"
-                  checked={formState.selectedValue === 'Não Agrupada'}
+                  checked={formState.pricingType === 'Não Agrupada'}
                   onChange={handleChange}
                   className="mr-1"
                 />
@@ -246,15 +264,41 @@ const PricingForm = () => {
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Data da Demanda
+            </label>
             <input
-              type="text"
-              placeholder="Observações"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              name="observations"
-              value={formState.observations}
+              type="date"
+              name="demandDate"
+              value={formState.demandDate}
               onChange={handleChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Data da Precificação
+            </label>
+            <input
+              type="date"
+              name="pricingDate"
+              value={formState.pricingDate}
+              onChange={handleChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Observações"
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            name="observations"
+            value={formState.observations}
+            onChange={handleChange}
+          />
         </div>
 
         {units.map((unit, index) => (

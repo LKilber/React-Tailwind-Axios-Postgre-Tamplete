@@ -15,14 +15,14 @@ def pricing(file):
 
     df['due_date'] = pd.to_datetime(df['due_date'])
     df['payment_date'] = pd.to_datetime(df['payment_date'])
-    df['total_value'] = df['total_value'].astype(float)
+    df['original_value'] = df['original_value'].astype(float)
     df['payment_value'] = df['payment_value'].astype(float)
-    df['year'] = df['year'].astype(int)
-    df = df[df['year'] == 2023]
+    df['year_ref'] = df['year_ref'].astype(int)
+    df = df[df['year_ref'] == 2023]
 
     def data_vencimento_ref(row):
         ano_vencimento = row['due_date'].year
-        ano_competencia = row['year']
+        ano_competencia = row['year_ref']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
@@ -46,10 +46,10 @@ def pricing(file):
         
     df['data_pagamento_ref'] = df.apply(data_pagamento_ref, axis=1)
 
-    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('total_value', 'sum')).reset_index()
+    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('original_value', 'sum')).reset_index()
     df_recebiveis['recebiveis acc'] = df_recebiveis['recebiveis'].cumsum()
 
-    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('total_value', 'sum')).reset_index()
+    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('original_value', 'sum')).reset_index()
     df_pagamentos['pagamentos acc'] = df_pagamentos['pagamentos'].cumsum()
 
     df_financ = pd.merge(df_recebiveis, df_pagamentos, left_on='data_vencimento_ref', right_on='data_pagamento_ref', how='outer')
@@ -151,14 +151,14 @@ def inadim_flow(file):
 
     df['due_date'] = pd.to_datetime(df['due_date'])
     df['payment_date'] = pd.to_datetime(df['payment_date'])
-    df['total_value'] = df['total_value'].astype(float)
+    df['original_value'] = df['original_value'].astype(float)
     df['payment_value'] = df['payment_value'].astype(float)
-    df['year'] = df['year'].astype(int)
-    df = df[df['year'] == 2023]
+    df['year_ref'] = df['year_ref'].astype(int)
+    df = df[df['year_ref'] == 2023]
 
     def data_vencimento_ref(row):
         ano_vencimento = row['due_date'].year
-        ano_competencia = row['year']
+        ano_competencia = row['year_ref']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
@@ -182,10 +182,10 @@ def inadim_flow(file):
         
     df['data_pagamento_ref'] = df.apply(data_pagamento_ref, axis=1)
 
-    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('total_value', 'sum')).reset_index()
+    df_recebiveis = df.groupby('data_vencimento_ref').agg(recebiveis=('original_value', 'sum')).reset_index()
     df_recebiveis['recebiveis_acc'] = df_recebiveis['recebiveis'].cumsum()
 
-    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('total_value', 'sum')).reset_index()
+    df_pagamentos = df.groupby('data_pagamento_ref').agg(pagamentos=('original_value', 'sum')).reset_index()
     df_pagamentos['pagamentos_acc'] = df_pagamentos['pagamentos'].cumsum()
 
     df_financ = pd.merge(df_recebiveis, df_pagamentos, left_on='data_vencimento_ref', right_on='data_pagamento_ref', how='outer')
@@ -212,15 +212,15 @@ def roll(file):
 
     df['due_date'] = pd.to_datetime(df['due_date'])
     df['payment_date'] = pd.to_datetime(df['payment_date'])
-    df['total_value'] = df['total_value'].astype(float)
+    df['original_value'] = df['original_value'].astype(float)
     df['payment_value'] = df['payment_value'].astype(float)
     df['discount'] = df['discount'].astype(float)
-    df['totalcomdesconto'] = df['total_value'] - df['discount']
-    df['year'] = df['year'].astype(int)
+    df['totalcomdesconto'] = df['original_value'] - df['discount']
+    df['year_ref'] = df['year_ref'].astype(int)
 
     def data_vencimento_ref(row):
         ano_vencimento = row['due_date'].year
-        ano_competencia = row['year']
+        ano_competencia = row['year_ref']
         if ano_vencimento < ano_competencia:
             return datetime(ano_competencia, 1, 1)
         elif ano_vencimento > ano_competencia:
