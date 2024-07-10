@@ -5,10 +5,29 @@ import requests
 from scripts.pricing import pricing, inadim_flow, roll
 import psycopg2
 from psycopg2.extras import execute_values
+import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Database connection function
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv('DB_HOST'),
+            port=os.getenv('DB_PORT'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            dbname=os.getenv('DB_NAME')
+        )
+        return conn
+    except Exception as e:
+        app.logger.error('Erro ao conectar ao banco de dados: %s', str(e))
+        raise
 
 @app.route('/')
 def index():
@@ -56,24 +75,8 @@ def fetch_cnpj_data(cnpj):
 
 @app.route('/api/submit_pricing_form', methods=['POST'])
 def submit_pricing_form():
-    database_credentials = {
-        'host': 'supabase.scio.site',
-        'port': '5432',
-        'user': 'precificacao',
-        'password': 'precificacao@2024',
-        'dbname': 'postgres'
-    }
-
-    conn_string = "host={host} port={port} dbname={dbname} user={user} password={password}".format(
-        host=database_credentials['host'],
-        port=database_credentials['port'],
-        dbname=database_credentials['dbname'],
-        user=database_credentials['user'],
-        password=database_credentials['password']
-    )
-
     try:
-        conn = psycopg2.connect(conn_string)
+        conn = get_db_connection()
         cur = conn.cursor()
 
         data = request.json
