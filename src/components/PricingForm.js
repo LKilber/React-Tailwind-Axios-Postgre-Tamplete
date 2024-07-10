@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/PricingForm.css';
-import UnitForm from './UnitForm'; // Import the UnitForm component
+import UnitForm from './UnitForm';
+import { validatePricingForm, hasErrors } from '../utils/pricingFormValidators';
+import Modal from './Modal';
 
 const PricingForm = () => {
   const [formState, setFormState] = useState({
@@ -18,6 +20,8 @@ const PricingForm = () => {
   });
 
   const [expandedUnits, setExpandedUnits] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -111,57 +115,42 @@ const PricingForm = () => {
     });
   };
 
-  const validate = () => {
-    const errors = {};
-    formState.units.forEach((unit, index) => {
-      const unitErrors = {};
-      const requiredFields = [
-        'cnpj',
-        'fantasyName',
-        'companyName',
-        'cep',
-        'endereco',
-        'cidade',
-        'uf',
-        'executiveName',
-        'studentsQtt',
-        'discountPct',
-        'ticketAvg',
-        'tir0',
-        'tir1',
-        'tir2',
-        'tir3',
-        'tir4',
-        'tir5',
-        'tir6',
-      ];
-      requiredFields.forEach((field) => {
-        if (!unit[field]) {
-          unitErrors[field] = `${field.toUpperCase()} é obrigatório`;
-        }
-      });
-      if (Object.keys(unitErrors).length) {
-        errors[index] = unitErrors;
-      }
-    });
-    setFormState((prev) => ({ ...prev, errors }));
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log('Form submitted:', formState);
 
-      axios
-        .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)
-        .then((response) => {
-          console.log('Form submitted successfully:', response.data);
-        })
-        .catch((error) => {
-          console.error('Error submitting form:', error);
-        });
+    const errors = validatePricingForm(formState);
+    setFormState((prev) => ({ ...prev, errors }));
+
+    if (hasErrors(errors)) {
+      console.log('Form contains errors:', errors);
+      return;
     }
+
+    axios
+      .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)
+      .then((response) => {
+        console.log('Form submitted successfully:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error submitting form:', error);
+      });
+  };
+
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.19.183:5001/api/fetch_school_name/${formState.schoolName}`,
+      );
+      setSearchResults(response.data);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Erro ao buscar a escola:', error);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSearchResults([]);
   };
 
   const toggleExpandUnit = (index) => {
@@ -181,29 +170,44 @@ const PricingForm = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-3 gap-4">
-          <div>
+          <div className="relative floating-label">
             <input
               type="text"
-              placeholder="Escola"
+              placeholder=" "
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               name="schoolName"
               value={formState.schoolName}
               onChange={handleChange}
               required
             />
+            <label>Escola</label>
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="absolute right-0 top-0 mt-1 py-3 px-4 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Buscar
+            </button>
+            {errors.schoolName && (
+              <p className="text-red-600">{errors.schoolName}</p>
+            )}
           </div>
-          <div>
+          <div className="relative floating-label">
             <input
               type="text"
-              placeholder="ID da Escola"
+              placeholder=" "
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               name="schoolID"
               value={formState.schoolID}
               onChange={handleChange}
               required
             />
+            <label>ID da Escola</label>
+            {errors.schoolID && (
+              <p className="text-red-600">{errors.schoolID}</p>
+            )}
           </div>
-          <div>
+          <div className="relative floating-label">
             <select
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               name="riskAlert"
@@ -216,16 +220,16 @@ const PricingForm = () => {
               <option value="medium">Médio</option>
               <option value="low">Baixo</option>
             </select>
+            {errors.riskAlert && (
+              <p className="text-red-600">{errors.riskAlert}</p>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Quantidade de Unidades
-            </label>
+          <div className="relative floating-label">
             <input
               type="number"
-              placeholder="Quantidade de Unidades"
+              placeholder=" "
               name="quantity"
               value={formState.quantity}
               onChange={handleQuantityChange}
@@ -233,40 +237,28 @@ const PricingForm = () => {
               required
               min="0"
             />
+            <label>Quantidade de Unidades</label>
+            {errors.quantity && (
+              <p className="text-red-600">{errors.quantity}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Tipo de Precificação
-            </label>
-            <div className="mt-1 flex items-center space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="pricingType"
-                  value="Agrupada"
-                  checked={formState.pricingType === 'Agrupada'}
-                  onChange={handleChange}
-                  className="mr-1"
-                />
-                Agrupada
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="pricingType"
-                  value="Não Agrupada"
-                  checked={formState.pricingType === 'Não Agrupada'}
-                  onChange={handleChange}
-                  className="mr-1"
-                />
-                Não Agrupada
-              </label>
-            </div>
+          <div className="relative floating-label">
+            <select
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              name="pricingType"
+              value={formState.pricingType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Tipo de Precificação</option>
+              <option value="Agrupada">Agrupada</option>
+              <option value="Não Agrupada">Não Agrupada</option>
+            </select>
+            {errors.pricingType && (
+              <p className="text-red-600">{errors.pricingType}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Data da Demanda
-            </label>
+          <div className="relative floating-label">
             <input
               type="date"
               name="demandDate"
@@ -275,11 +267,12 @@ const PricingForm = () => {
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
             />
+            <label>Data da Demanda</label>
+            {errors.demandDate && (
+              <p className="text-red-600">{errors.demandDate}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Data da Precificação
-            </label>
+          <div className="relative floating-label">
             <input
               type="date"
               name="pricingDate"
@@ -288,17 +281,22 @@ const PricingForm = () => {
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
             />
+            <label>Data da Precificação</label>
+            {errors.pricingDate && (
+              <p className="text-red-600">{errors.pricingDate}</p>
+            )}
           </div>
         </div>
-        <div>
+        <div className="relative floating-label">
           <input
             type="text"
-            placeholder="Observações"
+            placeholder=" "
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             name="observations"
             value={formState.observations}
             onChange={handleChange}
           />
+          <label>Observações</label>
         </div>
 
         {units.map((unit, index) => (
@@ -320,6 +318,17 @@ const PricingForm = () => {
           Enviar
         </button>
       </form>
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <h2 className="text-xl mb-4">Resultados da Pesquisa</h2>
+        <ul>
+          {searchResults.map((result) => (
+            <li key={result.id} className="mb-2">
+              Nome da Escola: {result.school_name} - ID da Escola:{' '}
+              {result.id_school} - CNPJ: {result.cnpj}
+            </li>
+          ))}
+        </ul>
+      </Modal>
     </div>
   );
 };

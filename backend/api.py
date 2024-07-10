@@ -71,6 +71,27 @@ def fetch_cnpj_data(cnpj):
         app.logger.error('Erro ao buscar dados do CNPJ: %s', str(e))
         return jsonify({'error': 'Erro ao buscar dados do CNPJ', 'message': str(e)}), 500
 
+@app.route('/api/fetch_school_name/<school_name>')
+def fetch_school_name(school_name):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "SELECT * FROM school WHERE school_name ILIKE %s"
+        cur.execute(query, ('%' + school_name + '%',))
+        rows = cur.fetchall()
+
+        column_names = [desc[0] for desc in cur.description]
+
+        data = [dict(zip(column_names, row)) for row in rows]
+
+        cur.close()
+        conn.close()
+
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': 'Erro ao buscar dados', 'message': str(e)}), 500
+
 @app.route('/api/submit_pricing_form', methods=['POST'])
 def submit_pricing_form():
     try:

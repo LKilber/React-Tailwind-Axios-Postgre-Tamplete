@@ -7,6 +7,28 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import PricingReport from './PricingReport';
 
+const executiveOptions = [
+  'Allacy Silva',
+  'Anne Hidaka',
+  'Antonio Claudio',
+  'Antonio Staub',
+  'Carolina Figueiredo',
+  'Cristiano Franco',
+  'Edivania de Oliveira do Nascimento',
+  'Fábio Sena',
+  'Gabriel Francisco',
+  'Gutemberg Gomes',
+  'Igor Sampaio',
+  'Jailson Paiva',
+  'Janaina Castro',
+  'Mario Sergio',
+  'Nicolas Teixeira',
+  'Niedson Falcão',
+  'Rafaela Ribeiro',
+  'Talison Machado',
+  'Warly Bernardino',
+];
+
 const UnitForm = ({
   unit,
   index,
@@ -37,7 +59,6 @@ const UnitForm = ({
       const worksheet = workbook.Sheets[sheetName];
       let json = XLSX.utils.sheet_to_json(worksheet);
 
-      // Format the columns
       json = json.map((record) => ({
         year_ref: parseInt(record['year_ref']),
         student_name: record['student_name'],
@@ -65,7 +86,7 @@ const UnitForm = ({
 
   const formatExcelDate = (excelDate) => {
     const date = new Date((excelDate - 25569) * 86400 * 1000);
-    return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    return date.toISOString().split('T')[0];
   };
 
   const isValidExcelDate = (value) => {
@@ -125,84 +146,165 @@ const UnitForm = ({
         className={`transition-max-height duration-500 ease-in-out overflow-hidden ${expanded ? 'max-h-screen' : 'max-h-0'}`}
       >
         <div className="grid grid-cols-5 gap-4 mt-4">
-          {['cnpj', 'inep', 'spcScore', 'fantasyName', 'companyName'].map(
-            (field) => (
-              <div key={field}>
-                <input
-                  type="text"
-                  placeholder={field}
-                  value={unit[field]}
-                  onChange={(e) =>
-                    handleUnitChange(index, field, e.target.value)
-                  }
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-                {errors[index]?.[field] && (
-                  <p className="text-red-500 text-sm">{errors[index][field]}</p>
-                )}
-              </div>
-            ),
-          )}
-        </div>
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          {['cep', 'endereco', 'cidade', 'uf'].map((field) => (
-            <div key={field}>
+          {[
+            { field: 'cnpj', label: 'CNPJ' },
+            { field: 'inep', label: 'INEP' },
+            { field: 'spcScore', label: 'SPC Score' },
+            { field: 'fantasyName', label: 'Nome Fantasia' },
+            { field: 'companyName', label: 'Razão Social' },
+          ].map(({ field, label }) => (
+            <div key={field} className="floating-label">
               <input
                 type="text"
-                placeholder={field}
+                id={`unit-${index}-${field}`}
+                placeholder=" "
                 value={unit[field]}
                 onChange={(e) => handleUnitChange(index, field, e.target.value)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={`mt-1 block w-full px-4 py-2 border ${
+                  errors[`units[${index}].${field}`]
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                 required
               />
-              {errors[index]?.[field] && (
-                <p className="text-red-500 text-sm">{errors[index][field]}</p>
+              <label htmlFor={`unit-${index}-${field}`}>{label}</label>
+              {errors[`units[${index}].${field}`] && (
+                <p className="text-red-600">
+                  {errors[`units[${index}].${field}`]}
+                </p>
               )}
             </div>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4">
-          {['executiveName', 'studentsQtt', 'discountPct', 'ticketAvg'].map(
-            (field) => (
-              <div key={field}>
-                <input
-                  type="text"
-                  placeholder={field}
-                  value={unit[field]}
-                  onChange={(e) =>
-                    handleUnitChange(index, field, e.target.value)
-                  }
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-                {errors[index]?.[field] && (
-                  <p className="text-red-500 text-sm">{errors[index][field]}</p>
-                )}
-              </div>
-            ),
-          )}
+          {[
+            { field: 'cep', label: 'CEP' },
+            { field: 'endereco', label: 'Endereço' },
+            { field: 'cidade', label: 'Cidade' },
+            { field: 'uf', label: 'UF' },
+          ].map(({ field, label }) => (
+            <div key={field} className="floating-label">
+              <input
+                type="text"
+                id={`unit-${index}-${field}`}
+                placeholder=" "
+                value={unit[field]}
+                onChange={(e) => handleUnitChange(index, field, e.target.value)}
+                className={`mt-1 block w-full px-4 py-2 border ${
+                  errors[`units[${index}].${field}`]
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                required
+              />
+              <label htmlFor={`unit-${index}-${field}`}>{label}</label>
+              {errors[`units[${index}].${field}`] && (
+                <p className="text-red-600">
+                  {errors[`units[${index}].${field}`]}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
+        <div className="grid grid-cols-4 gap-4 mt-4">
+          {[
+            { field: 'executiveName', label: 'Nome do Executivo' },
+            { field: 'studentsQtt', label: 'Quantidade de Alunos' },
+            { field: 'discountPct', label: 'Percentual de Desconto' },
+            { field: 'ticketAvg', label: 'Ticket Médio' },
+          ].map(({ field, label }) => (
+            <div key={field} className="floating-label">
+              {field === 'executiveName' ? (
+                <>
+                  <select
+                    id={`unit-${index}-${field}`}
+                    value={unit[field]}
+                    onChange={(e) =>
+                      handleUnitChange(index, field, e.target.value)
+                    }
+                    className={`mt-1 block w-full px-4 py-2 border ${
+                      errors[`units[${index}].${field}`]
+                        ? 'border-red-500'
+                        : 'border-gray-300'
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    required
+                  >
+                    <option value="" disabled>
+                      {label}
+                    </option>
+                    {executiveOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  {errors[`units[${index}].${field}`] && (
+                    <p className="text-red-600">
+                      {errors[`units[${index}].${field}`]}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    id={`unit-${index}-${field}`}
+                    placeholder=" "
+                    value={unit[field]}
+                    onChange={(e) =>
+                      handleUnitChange(index, field, e.target.value)
+                    }
+                    className={`mt-1 block w-full px-4 py-2 border ${
+                      errors[`units[${index}].${field}`]
+                        ? 'border-red-500'
+                        : 'border-gray-300'
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    required
+                  />
+                  <label htmlFor={`unit-${index}-${field}`}>{label}</label>
+                  {errors[`units[${index}].${field}`] && (
+                    <p className="text-red-600">
+                      {errors[`units[${index}].${field}`]}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
         <div className="grid grid-cols-7 gap-4 mt-4">
-          {['tir0', 'tir1', 'tir2', 'tir3', 'tir4', 'tir5', 'tir6'].map(
-            (field) => (
-              <div key={field}>
-                <input
-                  type="text"
-                  placeholder={field}
-                  value={unit[field]}
-                  onChange={(e) =>
-                    handleUnitChange(index, field, e.target.value)
-                  }
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-                {errors[index]?.[field] && (
-                  <p className="text-red-500 text-sm">{errors[index][field]}</p>
-                )}
-              </div>
-            ),
-          )}
+          {[
+            { field: 'tir0', label: 'TIR 0' },
+            { field: 'tir1', label: 'TIR 1' },
+            { field: 'tir2', label: 'TIR 2' },
+            { field: 'tir3', label: 'TIR 3' },
+            { field: 'tir4', label: 'TIR 4' },
+            { field: 'tir5', label: 'TIR 5' },
+            { field: 'tir6', label: 'TIR 6' },
+          ].map(({ field, label }) => (
+            <div key={field} className="floating-label">
+              <input
+                type="text"
+                id={`unit-${index}-${field}`}
+                placeholder=" "
+                value={unit[field]}
+                onChange={(e) => handleUnitChange(index, field, e.target.value)}
+                className={`mt-1 block w-full px-4 py-2 border ${
+                  errors[`units[${index}].${field}`]
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                } rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                required
+              />
+              <label htmlFor={`unit-${index}-${field}`}>{label}</label>
+              {errors[`units[${index}].${field}`] && (
+                <p className="text-red-600">
+                  {errors[`units[${index}].${field}`]}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
         <div className="flex items-center mt-4">
           <div
@@ -211,7 +313,11 @@ const UnitForm = ({
             })}
           >
             <input {...getInputProps()} />
-            <p>Arraste e solte um arquivo Excel ou clique para selecionar</p>
+            <p>
+              {fileUploaded
+                ? file.name
+                : 'Arraste e solte um arquivo Excel ou clique para selecionar'}
+            </p>
           </div>
           <button
             type="button"

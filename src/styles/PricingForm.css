@@ -28,3 +28,40 @@
 .dropzone.bg-green-200 {
   background-color: #e6ffed;
 }
+
+/* Floating label styles */
+.floating-label {
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.floating-label input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1rem 0.5rem 0.5rem 0.5rem;
+  width: 100%;
+}
+
+.floating-label select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.9rem 0.2rem 1rem 0.5rem;
+  width: 100%;
+}
+
+.floating-label label {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.5rem;
+  pointer-events: none;
+  transition: all 0.2s ease-out;
+  color: #999;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: -0.75rem;
+  left: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+}

@@ -13,7 +13,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Implantation from './pages/Implantation';
-import Test from './pages/Pricing';
+import Pricing from './pages/Pricing';
+import MiniGame from './pages/MiniGame';
 
 const App = () => {
   return (
@@ -49,10 +50,11 @@ const App = () => {
           path="/precificacao"
           element={
             <MainLayout>
-              <Test />
+              <Pricing />
             </MainLayout>
           }
         />
+        <Route path="/minigame" element={<MiniGame />} />
       </Routes>
     </Router>
   );

@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  FaBars,
-  FaHome,
-  FaDollarSign,
-  FaSignOutAlt,
-  FaFileAlt,
-  FaChevronLeft,
-} from 'react-icons/fa';
+import { FaBars, FaHome, FaDollarSign, FaChevronLeft } from 'react-icons/fa';
+import logo from '../assets/theweslley.png'; // Caminho para a sua logo
+import '../styles/SideBar.css'; // Importe o arquivo CSS personalizado
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showText, setShowText] = useState(false);
+  const [showLogos, setShowLogos] = useState(false);
+  const [logoPositions, setLogoPositions] = useState([]);
+  const buttonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
-      const timer = setTimeout(() => setShowText(true), 150);
+      const timer = setTimeout(() => setShowText(true), 300);
       return () => clearTimeout(timer);
     } else {
       setShowText(false);
@@ -26,20 +24,33 @@ const SideBar = () => {
     setIsOpen(!isOpen);
   };
 
+  const handlePrecificacaoClick = () => {
+    if (buttonRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const positions = Array.from({ length: 10 }).map(() => ({
+        top: buttonRect.top + window.scrollY,
+        left: buttonRect.left + window.scrollX,
+      }));
+      setLogoPositions(positions);
+      setShowLogos(true);
+      setTimeout(() => setShowLogos(false), 3000);
+    }
+  };
+
   return (
     <div
-      className={`flex flex-col ${isOpen ? 'w-48' : 'w-12'} bg-blue-900 text-white min-h-screen transition-all duration-300 ease-in-out shadow-lg`}
+      className={`flex flex-col ${isOpen ? 'w-36' : 'w-12'} bg-blue-900 text-white min-h-screen transition-all duration-300 ease-in-out shadow-lg`}
     >
       <div className="flex flex-col items-center mt-4 space-y-2">
         <button
           onClick={toggleSidebar}
-          className="text-white focus:outline-none w-full flex justify-center py-2 hover:bg-blue-700 transition-colors duration-300"
+          className="text-white focus:outline-none w-full flex justify-center py-4 hover:bg-blue-700 transition-colors duration-300"
         >
           {isOpen ? <FaChevronLeft size={20} /> : <FaBars size={20} />}
         </button>
         <NavLink
           to="/home"
-          className="w-full flex items-center py-2 px-3 hover:bg-blue-700 transition-colors duration-300"
+          className="w-full flex items-center py-2 px-4 hover:bg-blue-700 transition-colors duration-300"
           activeClassName="bg-blue-700"
           exact
         >
@@ -50,49 +61,30 @@ const SideBar = () => {
         </NavLink>
         <NavLink
           to="/precificacao"
-          className="w-full flex items-center py-2 px-3 hover:bg-blue-700 transition-colors duration-300"
+          className="w-full flex items-center py-2 px-4 hover:bg-blue-700 transition-colors duration-300"
           activeClassName="bg-blue-700"
+          onClick={handlePrecificacaoClick}
+          ref={buttonRef}
         >
           <FaDollarSign size={20} />
           <span className={`ml-4 text-sm ${showText ? 'block' : 'hidden'}`}>
             Precificação
           </span>
         </NavLink>
-        <div className="relative group w-full">
-          <div className="w-full flex items-center py-2 px-3 hover:bg-blue-700 cursor-pointer transition-colors duration-300 group-hover:shadow-lg group-hover:bg-blue-600">
-            <FaFileAlt size={20} />
-            <span className={`ml-4 text-sm ${showText ? 'block' : 'hidden'}`}>
-              Formulários
-            </span>
-          </div>
-          <div className="absolute left-full top-0 mt-2 w-48 bg-blue-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden z-10">
-            <NavLink
-              to="/pricing"
-              className="block px-3 py-2 hover:bg-blue-700 transition-colors duration-300 text-sm"
-              activeClassName="bg-blue-700"
-            >
-              Precificação
-            </NavLink>
-            <NavLink
-              to="/implantation"
-              className="block px-3 py-2 hover:bg-blue-700 transition-colors duration-300 text-sm"
-              activeClassName="bg-blue-700"
-            >
-              Implantação
-            </NavLink>
-          </div>
-        </div>
-        <NavLink
-          to="/logout"
-          className="w-full flex items-center py-2 px-3 hover:bg-blue-700 transition-colors duration-300"
-          activeClassName="bg-blue-700"
-        >
-          <FaSignOutAlt size={20} />
-          <span className={`ml-4 text-sm ${showText ? 'block' : 'hidden'}`}>
-            Logout
-          </span>
-        </NavLink>
       </div>
+      {showLogos && (
+        <div className="logos-container">
+          {logoPositions.map((pos, index) => (
+            <img
+              key={index}
+              src={logo}
+              alt="Logo"
+              className="spinning-logo"
+              style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
