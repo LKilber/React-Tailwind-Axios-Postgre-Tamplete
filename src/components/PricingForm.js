@@ -21,6 +21,8 @@ const PricingForm = () => {
 
   const [expandedUnits, setExpandedUnits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
   const handleChange = (e) => {
@@ -130,9 +132,15 @@ const PricingForm = () => {
       .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)
       .then((response) => {
         console.log('Form submitted successfully:', response.data);
+        setSuccessMessage('Dados enviados com sucesso!');
+        setIsSuccessModalOpen(true);
       })
       .catch((error) => {
         console.error('Error submitting form:', error);
+        setSuccessMessage(
+          'Erro ao enviar os dados. Por favor, tente novamente.',
+        );
+        setIsSuccessModalOpen(true);
       });
   };
 
@@ -151,6 +159,10 @@ const PricingForm = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSearchResults([]);
+  };
+
+  const closeSuccessModal = () => {
+    setIsSuccessModalOpen(false);
   };
 
   const toggleExpandUnit = (index) => {
@@ -328,6 +340,15 @@ const PricingForm = () => {
             </li>
           ))}
         </ul>
+      </Modal>
+      <Modal isOpen={isSuccessModalOpen} onClose={closeSuccessModal}>
+        <h2 className="text-xl mb-4">{successMessage}</h2>
+        <button
+          onClick={closeSuccessModal}
+          className="w-full py-2 bg-blue-600 text-white rounded-lg font-semibold text-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Fechar
+        </button>
       </Modal>
     </div>
   );
