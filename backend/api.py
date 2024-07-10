@@ -8,13 +8,11 @@ from psycopg2.extras import execute_values
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Database connection function
 def get_db_connection():
     try:
         conn = psycopg2.connect(
@@ -66,7 +64,7 @@ def fetch_cnpj_data(cnpj):
     url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Raise HTTPError for bad responses
+        response.raise_for_status()
         data = response.json()
         return jsonify(data)
     except requests.exceptions.RequestException as e:
