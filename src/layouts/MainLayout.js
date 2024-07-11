@@ -1,20 +1,24 @@
 // src/layouts/MainLayout.js
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Footer from '../components/Footer';
 import SideBar from '../components/SideBar';
 import NavBar from '../components/NavBar';
 
 const MainLayout = ({ children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSidebarToggle = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className={`main-layout ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <NavBar />
-      <div className="flex flex-grow overflow-hidden">
-        <SideBar />
-        <div className="flex flex-col flex-grow overflow-auto">
-          <main className="flex-grow p-6 bg-gray-100">{children}</main>
-          <Footer />
-        </div>
+      <SideBar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+      <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+        <main className="content">{children}</main>
+        <Footer />
       </div>
     </div>
   );

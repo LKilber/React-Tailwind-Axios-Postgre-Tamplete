@@ -1,0 +1,27 @@
+/* src/styles/MainLayout.css */
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+  margin-left: 80px; /* Default margin to account for the closed sidebar */
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-open {
+  margin-left: 200px; /* Adjust this value to match the width of the sidebar when open */
+}
+
+.main-content .content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f0f0f0;
+  overflow-y: auto;
+}

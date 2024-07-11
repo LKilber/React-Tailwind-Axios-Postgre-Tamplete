@@ -7,6 +7,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
+import './styles/MainLayout.css'; // Adicionando a importação do CSS
 
 // Importing components directly
 import Home from './pages/Home';

@@ -1,37 +1,162 @@
-/* src/styles/SideBar.css */
-.logos-container {
-  position: fixed;
+body {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.sidebar__toggle {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  margin: 20px 0;
+}
+
+.sidebar__toggle:hover {
+  background-color: #e0e0e0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(145deg, #e6e9f0, #eef1f5);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
+  border-radius: 10px;
+  width: 80px; /* Initial width */
+  position: fixed; /* Fixed position to overlay on top */
   top: 0;
   left: 0;
-  width: 100%;
+  z-index: 100;
   height: 100%;
-  pointer-events: none;
-  z-index: 50;
+  overflow: hidden;
 }
 
-.spinning-logo {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  animation:
-    spin 1s linear infinite,
-    spread 3s ease-out;
+.sidebar.open {
+  width: 200px;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar__logo {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-@keyframes spread {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(calc(50vw - 25px), calc(50vh - 25px));
+.sidebar__logo img {
+  width: 40px;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.sidebar__nav a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-bottom: 10px; /* Add margin to increase spacing */
+  position: relative; /* Make the container relative for absolute positioning of text */
+}
+
+.sidebar__nav a:hover {
+  background-color: #d1d9e6;
+  color: #000;
+}
+
+.sidebar__nav a.active {
+  background-color: #b0bec5; /* Color when item is active */
+}
+
+.sidebar__nav a span {
+  margin-left: 10px;
+  white-space: nowrap; /* Prevent text wrapping */
+  visibility: hidden; /* Hide text initially */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute; /* Absolute positioning to avoid pushing icons */
+  left: 40px; /* Adjust to position the text next to the icons */
+}
+
+.sidebar.open .sidebar__nav a span {
+  visibility: visible; /* Show text when sidebar is open */
+  opacity: 1;
+}
+
+.sidebar__nav a .fa {
+  width: 20px; /* Ensure icons have a fixed width */
+  height: 20px; /* Ensure icons have a fixed height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar__submenu {
+  width: 100%;
+}
+
+.submenu__toggle {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-bottom: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.submenu__toggle:hover {
+  background-color: #d1d9e6;
+  color: #000;
+}
+
+.submenu__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.submenu__content a {
+  width: 100%;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-bottom: 5px;
+}
+
+.submenu__content a:hover {
+  background-color: #d1d9e6;
+  color: #000;
+}
+
+@media (max-width: 768px) {
+  .sidebar.open {
+    width: 150px;
   }
 }
