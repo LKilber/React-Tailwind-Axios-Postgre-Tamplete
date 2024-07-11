@@ -1,0 +1,35 @@
+.tickets {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .tickets__loading {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  
+  .tickets__list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .tickets__item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tickets__item h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+  }
+  
+  .tickets__item p {
+    margin: 5px 0 0;
+    color: #666;
+  }
+  

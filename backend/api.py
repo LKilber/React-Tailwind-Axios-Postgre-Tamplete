@@ -101,6 +101,7 @@ def submit_pricing_form():
         data = request.json
         
         for unit in data['units']:
+            print(unit['unitDataType'])
             cur.execute(
                 """
                 INSERT INTO school (
@@ -214,6 +215,25 @@ def submit_pricing_form():
                     ) VALUES %s
                 """, records)
 
+            elif unit['unitDataType'] == 'CONSOLIDADO':
+                records = []
+                for record in unit['unitData']:
+                    records.append((
+                        unit['unitId'],
+                        record['ref_date'],
+                        record['tpv'],
+                        record['unpaid_tpv']
+                    ))
+                
+                execute_values(cur, """
+                    INSERT INTO consolidated_financial_record (
+                        id_unit,  
+                        ref_date,
+                        tpv,
+                        unpaid_tpv
+                    ) VALUES %s
+                """, records)
+
         conn.commit()
         cur.close()
         conn.close()
@@ -222,6 +242,34 @@ def submit_pricing_form():
     except Exception as e:
         app.logger.error('Erro ao inserir dados no banco: %s', str(e))
         return jsonify({'error': 'Erro ao inserir dados no banco', 'message': str(e)}), 500
-    
+
+@app.route('/api/get_pricing_data', methods=['GET'])
+def get_pricing_data():
+    school_name = request.args.get('school_name', '')
+
+    if not school_name:
+        return jsonify({'error': 'No school name provided'}), 400
+
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            query = """
+                SELECT * FROM school
+                JOIN pricing ON school.id_unit = pricing.id_unit
+                WHERE school_name ILIKE %s
+            """
+            cur.execute(query, ('%' + school_name + '%',))
+            rows = cur.fetchall()
+
+            column_names = [desc[0] for desc in cur.description]
+            data = [dict(zip(column_names, row)) for row in rows]
+
+        conn.close()
+
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': 'Erro ao buscar dados', 'message': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

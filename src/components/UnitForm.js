@@ -59,20 +59,36 @@ const UnitForm = ({
       const worksheet = workbook.Sheets[sheetName];
       let json = XLSX.utils.sheet_to_json(worksheet);
 
-      json = json.map((record) => ({
-        year_ref: parseInt(record['year_ref']),
-        student_name: record['student_name'],
-        financial_resp: record['financial_resp'],
-        due_date: isValidExcelDate(record['due_date'])
-          ? formatExcelDate(record['due_date'])
-          : null,
-        original_value: parseFloat(record['original_value']),
-        discount: parseFloat(record['discount']),
-        payment_value: parseFloat(record['payment_value']),
-        payment_date: isValidExcelDate(record['payment_date'])
-          ? formatExcelDate(record['payment_date'])
-          : null,
-      }));
+      const dataType = json.some((item) =>
+        Object.prototype.hasOwnProperty.call(item, 'student_name'),
+      )
+        ? 'DETALHADO'
+        : 'CONSOLIDADO';
+
+      if (dataType === 'DETALHADO') {
+        json = json.map((record) => ({
+          year_ref: parseInt(record['year_ref']),
+          student_name: record['student_name'],
+          financial_resp: record['financial_resp'],
+          due_date: isValidExcelDate(record['due_date'])
+            ? formatExcelDate(record['due_date'])
+            : null,
+          original_value: parseFloat(record['original_value']),
+          discount: parseFloat(record['discount']),
+          payment_value: parseFloat(record['payment_value']),
+          payment_date: isValidExcelDate(record['payment_date'])
+            ? formatExcelDate(record['payment_date'])
+            : null,
+        }));
+      } else {
+        json = json.map((record) => ({
+          ref_date: isValidExcelDate(record['ref_date'])
+            ? formatExcelDate(record['ref_date'])
+            : null,
+          tpv: parseFloat(record['tpv']),
+          unpaid_tpv: parseFloat(record['unpaid_tpv']),
+        }));
+      }
 
       setFile(file);
       setJson(json);

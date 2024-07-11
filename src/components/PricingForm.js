@@ -106,6 +106,7 @@ const PricingForm = () => {
       ? 'DETALHADO'
       : 'CONSOLIDADO';
 
+    console.log(dataType);
     setFormState((prevState) => {
       const newUnits = [...prevState.units];
       newUnits[index] = {
@@ -127,6 +128,8 @@ const PricingForm = () => {
       console.log('Form contains errors:', errors);
       return;
     }
+
+    console.log(formState);
 
     axios
       .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)

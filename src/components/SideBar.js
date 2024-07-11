@@ -7,6 +7,7 @@ import {
   FaDollarSign,
   FaChevronLeft,
   FaChevronDown,
+  FaTicketAlt,
 } from 'react-icons/fa';
 import '../styles/SideBar.css';
 import logo from '../assets/logo.png';
@@ -14,7 +15,7 @@ import logo from '../assets/logo.png';
 const SideBar = ({ isOpen, onToggle }) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
-  const toggleSubMenu = () => {
+  const handleSubMenuToggle = () => {
     setIsSubMenuOpen(!isSubMenuOpen);
   };
 
@@ -31,25 +32,28 @@ const SideBar = ({ isOpen, onToggle }) => {
           <FaHome size={20} />
           <span>Home</span>
         </NavLink>
-        <NavLink to="/precificacao" activeClassName="active">
-          <FaDollarSign size={20} />
-          <span>Precificação</span>
+        <NavLink to="/tickets" exact activeClassName="active">
+          <FaTicketAlt size={20} />
+          <span>Tickets</span>
         </NavLink>
         <div className="sidebar__submenu">
-          <button onClick={toggleSubMenu} className="submenu__toggle">
-            <FaChevronDown size={20} />
-            <span>Mais</span>
+          <button className="submenu__toggle" onClick={handleSubMenuToggle}>
+            <FaDollarSign size={20} />
+            <span>Precificação</span>
+            <FaChevronDown
+              className={`submenu__icon ${isSubMenuOpen ? 'open' : ''}`}
+            />
           </button>
-          {isSubMenuOpen && (
-            <div className="submenu__content">
-              <NavLink to="/opcao1" activeClassName="active">
-                <span>Opção 1</span>
-              </NavLink>
-              <NavLink to="/opcao2" activeClassName="active">
-                <span>Opção 2</span>
-              </NavLink>
-            </div>
-          )}
+          <div className={`submenu__content ${isSubMenuOpen ? 'open' : ''}`}>
+            <NavLink to="/precificacao" activeClassName="active">
+              <FaDollarSign size={20} />
+              <span>Precificação</span>
+            </NavLink>
+            <NavLink to="/viewpricing" activeClassName="active">
+              <FaDollarSign size={20} />
+              <span>Ver Precificações</span>
+            </NavLink>
+          </div>
         </div>
       </nav>
     </div>

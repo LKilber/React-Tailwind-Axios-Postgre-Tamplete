@@ -1,0 +1,114 @@
+.view-pricing {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 16px;
+  margin-right: 10px;
+  flex-grow: 1;
+}
+
+.search-bar button {
+  padding: 10px 15px;
+  font-size: 16px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.search-bar .clear-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  max-width: 100%;
+  overflow: hidden; /* Ensure smooth transition */
+}
+
+.card.expanded {
+  background-color: #f9f9f9;
+  border-color: #ccc;
+}
+
+.card-header {
+  margin-bottom: 10px;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.card-body {
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.5s ease,
+    opacity 0.5s ease; /* Smooth transition */
+  overflow: hidden;
+}
+
+.card.expanded .card-body {
+  max-height: 1000px; /* Arbitrary large value for max height */
+  opacity: 1;
+}
+
+.card-header:hover {
+  background-color: #f2f2f2;
+}
+
+.card-body p {
+  margin: 5px 0;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .search-bar input {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .search-bar button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .search-bar .clear-btn {
+    margin-bottom: 0;
+  }
+
+  .card {
+    width: 100%;
+  }
+}

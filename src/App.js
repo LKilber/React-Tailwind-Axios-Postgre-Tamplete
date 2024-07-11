@@ -15,7 +15,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Implantation from './pages/Implantation';
 import Pricing from './pages/Pricing';
-import MiniGame from './pages/MiniGame';
+import ViewPricing from './pages/ViewPricing';
+import Tickets from './pages/Tickets';
 
 const App = () => {
   return (
@@ -55,7 +56,22 @@ const App = () => {
             </MainLayout>
           }
         />
-        <Route path="/minigame" element={<MiniGame />} />
+        <Route
+          path="/viewpricing"
+          element={
+            <MainLayout>
+              <ViewPricing />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/tickets"
+          element={
+            <MainLayout>
+              <Tickets />
+            </MainLayout>
+          }
+        />
       </Routes>
     </Router>
   );
