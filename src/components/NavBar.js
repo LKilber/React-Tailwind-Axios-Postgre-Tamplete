@@ -1,20 +1,24 @@
 // src/components/NavBar.js
 import React from 'react';
-import { FaQuestionCircle, FaUserCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../services/authService';
+import '../styles/NavBar.css'; // Importa o CSS
+import { FaSignOutAlt } from 'react-icons/fa'; // Importa o ícone
 
 const NavBar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login'); // Redireciona para a página de login após o logoff
+  };
+
   return (
     <nav className="navbar">
-      <div className="flex items-center space-x-4">
-        <FaQuestionCircle
-          size={20}
-          className="cursor-pointer hover:text-gray-400 transition duration-300"
-        />
-        <FaUserCircle
-          size={20}
-          className="cursor-pointer hover:text-gray-400 transition duration-300"
-        />
-      </div>
+      <button onClick={handleLogout}>
+        <FaSignOutAlt />
+        Logoff
+      </button>
     </nav>
   );
 };

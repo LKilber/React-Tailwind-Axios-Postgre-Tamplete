@@ -12,9 +12,14 @@ const useAuth = () => {
 
   const login = async (credentials) => {
     setLoading(true);
-    const user = await loginService(credentials);
-    setUser(user);
-    setLoading(false);
+    try {
+      const user = await loginService(credentials);
+      setUser(user);
+    } catch (err) {
+      console.error('Error logging in:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
@@ -23,10 +28,14 @@ const useAuth = () => {
   };
 
   useEffect(() => {
-    // Check if user is authenticated on component mount
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(storedUser);
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error('Failed to parse user from localStorage:', err);
+      }
     }
   }, [setUser]);
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 import {
   FaBars,
   FaHome,
@@ -8,12 +9,16 @@ import {
   FaChevronLeft,
   FaChevronDown,
   FaTicketAlt,
+  FaTools,
 } from 'react-icons/fa';
 import '../styles/SideBar.css';
 import logo from '../assets/logo.png';
 
 const SideBar = ({ isOpen, onToggle }) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const { user } = useContext(AuthContext);
+
+  console.log(user);
 
   const handleSubMenuToggle = () => {
     setIsSubMenuOpen(!isSubMenuOpen);
@@ -55,6 +60,12 @@ const SideBar = ({ isOpen, onToggle }) => {
             </NavLink>
           </div>
         </div>
+        {user && user.level === 'Admin' && (
+          <NavLink to="/admin" exact activeClassName="active">
+            <FaTools size={20} />
+            <span>Admin</span>
+          </NavLink>
+        )}
       </nav>
     </div>
   );

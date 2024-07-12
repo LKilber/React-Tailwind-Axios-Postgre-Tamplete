@@ -1,17 +1,28 @@
 /* src/styles/NavBar.css */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.navbar {
+  background: #fff; /* Gradiente de fundo */
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 40px; /* Define a altura da navbar */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para efeito de profundidade */
 }
 
-.logo {
-  transition: transform 0.3s ease-in-out;
+.navbar button {
+  background-color: #d8891a;
+  border: none;
+  padding: 0.1rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.3s; /* Transição suave */
+  display: flex;
+  align-items: center;
 }
 
-.logo:hover {
-  animation: spin 1s linear infinite;
+.navbar button i {
+  margin-right: 1rem; /* Espaçamento entre o ícone e o texto */
+  font-size: 1rem;
 }

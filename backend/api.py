@@ -283,23 +283,28 @@ def get_pricing_data():
 def login():
     try:
         data = request.json
-        username = data.get('username')
+        cpf = data.get('username')
         password = data.get('password')
 
         conn = get_db_connection()
         cur = conn.cursor()
 
-        query = "SELECT * FROM users WHERE username = %s AND password = %s"
-        cur.execute(query, (username, password))
+        query = "SELECT * FROM users WHERE cpf = %s AND password = %s"
+        cur.execute(query, (cpf, password))
         user = cur.fetchone()
 
-        cur.close()
-        conn.close()
-
         if user:
-            access_token = create_access_token(identity={'username': username})
-            return jsonify({'token': access_token}), 200
+            colnames = [desc[0] for desc in cur.description]
+            user_dict = dict(zip(colnames, user))
+
+            cur.close()
+            conn.close()
+
+            access_token = create_access_token(identity={'user': user_dict})
+            return jsonify({'token': access_token, 'user': user_dict}), 200
         else:
+            cur.close()
+            conn.close()
             return jsonify({'error': 'Credenciais inválidas'}), 401
     except Exception as e:
         app.logger.error('Erro ao processar login: %s', str(e))

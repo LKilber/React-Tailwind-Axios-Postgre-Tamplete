@@ -11,12 +11,12 @@
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
-  margin-left: 80px; /* Default margin to account for the closed sidebar */
+  margin-left: 80px;
   transition: margin-left 0.3s ease;
 }
 
 .main-content.sidebar-open {
-  margin-left: 200px; /* Adjust this value to match the width of the sidebar when open */
+  margin-left: 200px;
 }
 
 .main-content .content {

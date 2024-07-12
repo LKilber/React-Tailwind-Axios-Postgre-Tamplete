@@ -17,6 +17,7 @@ import Pricing from './pages/Pricing';
 import ViewPricing from './pages/ViewPricing';
 import Tickets from './pages/Tickets';
 import ProtectedRoute from './components/ProtectedRoute';
+import Admin from './pages/Admin';
 
 const App = () => {
   return (
@@ -71,6 +72,16 @@ const App = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Tickets />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Admin />
                 </MainLayout>
               </ProtectedRoute>
             }

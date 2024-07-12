@@ -1,3 +1,4 @@
+/* src/styles/SideBar.css */
 .sidebar__toggle {
   background-color: #fff;
   border: none;
@@ -18,11 +19,11 @@
   align-items: center;
   padding: 10px;
   background: linear-gradient(145deg, #e6e9f0, #eef1f5);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition:
     width 0.3s ease,
     background 0.3s ease;
-  border-radius: 10px;
+  border-radius: 0px;
   width: 80px; /* Initial width */
   position: fixed; /* Fixed position to overlay on top */
   top: 0;
