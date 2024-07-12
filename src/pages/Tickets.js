@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import TicketModal from '../components/TicketModal';
 import '../styles/Tickets.css';
 
 const Tickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [newTicket, setNewTicket] = useState({ title: '', description: '' });
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -23,6 +26,17 @@ const Tickets = () => {
     fetchTickets();
   }, []);
 
+  const handleAddTicket = () => {
+    const newId = tickets.length ? tickets[tickets.length - 1].id + 1 : 1;
+    const ticket = { id: newId, ...newTicket };
+    setTickets([...tickets, ticket]);
+    setNewTicket({ title: '', description: '' });
+    setModalIsOpen(false);
+  };
+
+  const openModal = () => setModalIsOpen(true);
+  const closeModal = () => setModalIsOpen(false);
+
   if (loading) {
     return <div className="tickets__loading">Carregando tickets...</div>;
   }
@@ -38,6 +52,8 @@ const Tickets = () => {
           </li>
         ))}
       </ul>
+      <button onClick={openModal}>Adicionar Ticket</button>
+      <TicketModal isOpen={modalIsOpen} onClose={closeModal} />
     </div>
   );
 };

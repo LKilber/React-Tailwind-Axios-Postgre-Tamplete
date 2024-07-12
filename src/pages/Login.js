@@ -20,10 +20,6 @@ const Login = () => {
     }
   };
 
-  const handleRegister = () => {
-    navigate('/register');
-  };
-
   return (
     <AuthLayout>
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -64,12 +60,6 @@ const Login = () => {
               Login
             </button>
           </form>
-          <button
-            onClick={handleRegister}
-            className="mt-4 w-full py-3 bg-gray-700 text-white rounded-lg font-semibold text-center hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600"
-          >
-            Register
-          </button>
         </div>
       </div>
     </AuthLayout>

@@ -1,35 +1,45 @@
+/* src/styles/Tickets.css */
 .tickets {
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .tickets__loading {
-    text-align: center;
-    font-size: 1.5rem;
-  }
-  
-  .tickets__list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .tickets__item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .tickets__item h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #333;
-  }
-  
-  .tickets__item p {
-    margin: 5px 0 0;
-    color: #666;
-  }
-  
+  padding: 20px;
+}
+
+.tickets__list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.tickets__item {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.tickets__loading {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+input[type='text'] {
+  display: block;
+  width: calc(100% - 22px);
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

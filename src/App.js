@@ -6,74 +6,78 @@ import {
   Routes,
   Navigate,
 } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import MainLayout from './layouts/MainLayout';
-import './styles/MainLayout.css'; // Adicionando a importação do CSS
+import './styles/MainLayout.css';
 
-// Importing components directly
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import Implantation from './pages/Implantation';
 import Pricing from './pages/Pricing';
 import ViewPricing from './pages/ViewPricing';
 import Tickets from './pages/Tickets';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route
-          path="/home"
-          element={
-            <MainLayout>
-              <Home />
-            </MainLayout>
-          }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/register"
-          element={
-            <MainLayout>
-              <Register />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/implantation"
-          element={
-            <MainLayout>
-              <Implantation />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/precificacao"
-          element={
-            <MainLayout>
-              <Pricing />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/viewpricing"
-          element={
-            <MainLayout>
-              <ViewPricing />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/tickets"
-          element={
-            <MainLayout>
-              <Tickets />
-            </MainLayout>
-          }
-        />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Home />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/implantation"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Implantation />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/precificacao"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Pricing />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/viewpricing"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ViewPricing />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tickets"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Tickets />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

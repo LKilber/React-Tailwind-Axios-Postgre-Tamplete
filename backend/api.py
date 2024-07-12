@@ -7,11 +7,15 @@ import psycopg2
 from psycopg2.extras import execute_values
 import os
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+jwt = JWTManager(app)
 
 def get_db_connection():
     try:
@@ -32,6 +36,7 @@ def index():
     return "API Flask está funcionando"
 
 @app.route('/api/pricing', methods=['POST'])
+@jwt_required()
 def excel_endpoint():
     try:
         if 'file' not in request.files:
@@ -60,6 +65,7 @@ def excel_endpoint():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/fetch_cnpj_data/<cnpj>')
+@jwt_required()
 def fetch_cnpj_data(cnpj):
     url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
     try:
@@ -72,6 +78,7 @@ def fetch_cnpj_data(cnpj):
         return jsonify({'error': 'Erro ao buscar dados do CNPJ', 'message': str(e)}), 500
 
 @app.route('/api/fetch_school_name/<school_name>')
+@jwt_required()
 def fetch_school_name(school_name):
     try:
         conn = get_db_connection()
@@ -93,6 +100,7 @@ def fetch_school_name(school_name):
         return jsonify({'error': 'Erro ao buscar dados', 'message': str(e)}), 500
 
 @app.route('/api/submit_pricing_form', methods=['POST'])
+@jwt_required()
 def submit_pricing_form():
     try:
         conn = get_db_connection()
@@ -244,6 +252,7 @@ def submit_pricing_form():
         return jsonify({'error': 'Erro ao inserir dados no banco', 'message': str(e)}), 500
 
 @app.route('/api/get_pricing_data', methods=['GET'])
+@jwt_required()
 def get_pricing_data():
     school_name = request.args.get('school_name', '')
 
@@ -270,6 +279,31 @@ def get_pricing_data():
     except Exception as e:
         return jsonify({'error': 'Erro ao buscar dados', 'message': str(e)}), 500
 
+@app.route('/auth/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
 
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "SELECT * FROM users WHERE username = %s AND password = %s"
+        cur.execute(query, (username, password))
+        user = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if user:
+            access_token = create_access_token(identity={'username': username})
+            return jsonify({'token': access_token}), 200
+        else:
+            return jsonify({'error': 'Credenciais inválidas'}), 401
+    except Exception as e:
+        app.logger.error('Erro ao processar login: %s', str(e))
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

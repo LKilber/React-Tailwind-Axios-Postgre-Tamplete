@@ -1,5 +1,5 @@
 // src/hooks/useAuth.js
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import {
   login as loginService,
@@ -21,6 +21,14 @@ const useAuth = () => {
     logoutService();
     setUser(null);
   };
+
+  useEffect(() => {
+    // Check if user is authenticated on component mount
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, [setUser]);
 
   return { user, setUser, loading, login, logout };
 };
