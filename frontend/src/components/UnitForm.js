@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as XLSX from 'xlsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import api from '../services/axiosConfig';
 import PricingReport from './PricingReport';
 
 const executiveOptions = [
@@ -124,15 +124,11 @@ const UnitForm = ({
       formData.append('file', file);
       formData.append('json', JSON.stringify(json));
 
-      const responseFlask = await axios.post(
-        'http://192.168.19.183:5001/api/pricing',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+      const responseFlask = await api.post('/process/pricing', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      );
+      });
 
       setApiResponse(responseFlask.data.pricing);
       setApiResponseInadimFlow(responseFlask.data.inadim_flow);

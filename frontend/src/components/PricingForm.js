@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../services/axiosConfig'; // Importando o Axios configurado
+import api from '../services/axiosConfig';
 import '../styles/PricingForm.css';
 import UnitForm from './UnitForm';
 import { validatePricingForm, hasErrors } from '../utils/pricingFormValidators';
