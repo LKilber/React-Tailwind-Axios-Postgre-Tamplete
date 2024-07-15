@@ -12,11 +12,12 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login({ cpf, password });
       navigate('/home');
     } catch (error) {
-      setError('Invalid credentials');
+      setError(error.message);
     }
   };
 

@@ -18,8 +18,6 @@ const SideBar = ({ isOpen, onToggle }) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const { user } = useContext(AuthContext);
 
-  console.log(user);
-
   const handleSubMenuToggle = () => {
     setIsSubMenuOpen(!isSubMenuOpen);
   };

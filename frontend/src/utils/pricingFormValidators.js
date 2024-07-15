@@ -35,6 +35,12 @@ const validateCNPJ = (cnpj) => {
   return true;
 };
 
+const validateCEP = (cep) => {
+  const cleanedCEP = cep.replace(/\D/g, '');
+  const validCEPRegex = /^\d{8}$/;
+  return validCEPRegex.test(cleanedCEP);
+};
+
 export const validatePricingForm = (formState) => {
   let errors = {};
 
@@ -67,9 +73,7 @@ export const validatePricingForm = (formState) => {
   }
 
   formState.units.forEach((unit, index) => {
-    if (unit.cnpj.length !== 14) {
-      errors[`units[${index}].cnpj`] = 'CNPJ deve ter 14 caracteres';
-    } else if (!validateCNPJ(unit.cnpj)) {
+    if (!validateCNPJ(unit.cnpj)) {
       errors[`units[${index}].cnpj`] = 'CNPJ inválido';
     }
 
@@ -89,8 +93,8 @@ export const validatePricingForm = (formState) => {
       errors[`units[${index}].companyName`] = 'Nome da empresa é obrigatório';
     }
 
-    if (unit.cep.length !== 8) {
-      errors[`units[${index}].cep`] = 'CEP deve ter 8 dígitos';
+    if (!validateCEP(unit.cep)) {
+      errors[`units[${index}].cep`] = 'CEP inválido';
     }
 
     if (!unit.endereco) {

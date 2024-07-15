@@ -1,4 +1,5 @@
 from .auth_routes import auth_bp
-from .process_routes import pricing_bp
+from .process_routes import process_bp
 from .main_routes import main_bp
-from .call_routes import cnpj_call_bp, pricing_call_bp
+from .call_routes import call_bp
+from .submit_routes import submit_bp

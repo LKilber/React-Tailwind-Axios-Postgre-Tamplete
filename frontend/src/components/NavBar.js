@@ -10,7 +10,7 @@ const NavBar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login'); // Redireciona para a página de login após o logoff
+    navigate('/login');
   };
 
   return (

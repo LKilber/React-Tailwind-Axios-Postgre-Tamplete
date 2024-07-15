@@ -3,10 +3,9 @@ from flask_jwt_extended import jwt_required
 from app.utils import get_db_connection
 import requests
 
-cnpj_call_bp = Blueprint('cnpj_call', __name__)
-pricing_call_bp = Blueprint('pricing_call', __name__)
+call_bp = Blueprint('call', __name__)
 
-@cnpj_call_bp.route('/cnpj_data/<cnpj>')
+@call_bp.route('/cnpj_data/<cnpj>')
 def cnpj_data(cnpj):
     print(cnpj)
     url = f"https://www.receitaws.com.br/v1/cnpj/{cnpj}"
@@ -18,9 +17,9 @@ def cnpj_data(cnpj):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': 'Erro ao buscar dados do CNPJ', 'message': str(e)}), 500
 
-@pricing_call_bp.route('/pricing_data/<school_name>')
+@call_bp.route('/school_data/<school_name>')
 @jwt_required()
-def pricing_data(school_name):
+def school_data(school_name):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -34,6 +33,29 @@ def pricing_data(school_name):
         data = [dict(zip(column_names, row)) for row in rows]
 
         cur.close()
+        conn.close()
+
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': 'Erro ao buscar dados', 'message': str(e)}), 500
+
+@call_bp.route('/pricing_data/<school_name>')
+@jwt_required()
+def pricing_data(school_name):
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            query = """
+                SELECT * FROM school
+                JOIN pricing ON school.id_unit = pricing.id_unit
+                WHERE school_name ILIKE %s
+            """
+            cur.execute(query, ('%' + school_name + '%',))
+            rows = cur.fetchall()
+
+            column_names = [desc[0] for desc in cur.description]
+            data = [dict(zip(column_names, row)) for row in rows]
+
         conn.close()
 
         return jsonify(data)

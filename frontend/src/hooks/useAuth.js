@@ -1,4 +1,3 @@
-// src/hooks/useAuth.js
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import {
@@ -17,6 +16,7 @@ const useAuth = () => {
       setUser(user);
     } catch (err) {
       console.error('Error logging in:', err);
+      throw err; // Propagate the error
     } finally {
       setLoading(false);
     }
@@ -35,11 +35,12 @@ const useAuth = () => {
         setUser(parsedUser);
       } catch (err) {
         console.error('Failed to parse user from localStorage:', err);
+        logoutService(); // Clear possibly corrupted data
       }
     }
   }, [setUser]);
 
-  return { user, setUser, loading, login, logout };
+  return { user, loading, login, logout };
 };
 
 export default useAuth;

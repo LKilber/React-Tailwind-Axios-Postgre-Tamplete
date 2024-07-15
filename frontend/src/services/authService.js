@@ -6,18 +6,22 @@ const api = axios.create({
 });
 
 export const login = async (credentials) => {
-  const response = await api.post('/auth/login', credentials);
-  localStorage.setItem('token', response.data.token);
-  localStorage.setItem('user', JSON.stringify(response.data.user));
-  return response.data.user;
+  try {
+    const response = await api.post('/auth/login', credentials);
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    return response.data.user;
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      throw new Error('Invalid credentials');
+    } else {
+      throw new Error('An error occurred during login');
+    }
+  }
 };
 
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-};
-
-export const register = async (userInfo) => {
-  const response = await api.post('/auth/register', userInfo);
-  return response.data;
+  console.log(localStorage.getItem('user'));
 };

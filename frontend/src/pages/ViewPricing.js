@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/axiosConfig';
 import '../styles/ViewPricing.css'; // Import CSS for styling
 
 const ViewPricing = () => {
@@ -11,14 +11,10 @@ const ViewPricing = () => {
 
   const fetchPricingData = async () => {
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
+    console.log(schoolName);
     try {
-      const response = await axios.get(
-        'http://192.168.19.183:5001/api/get_pricing_data',
-        {
-          params: { school_name: schoolName },
-        },
-      );
+      const response = await api.get(`/call/pricing_data/${schoolName}`);
       setPricingData(response.data);
       setLoading(false);
     } catch (error) {

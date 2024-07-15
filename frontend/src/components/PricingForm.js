@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/axiosConfig'; // Importando o Axios configurado
 import '../styles/PricingForm.css';
 import UnitForm from './UnitForm';
 import { validatePricingForm, hasErrors } from '../utils/pricingFormValidators';
@@ -65,22 +65,45 @@ const PricingForm = () => {
     setExpandedUnits(Array.from({ length: quantity }, () => false));
   };
 
+  const formatCNPJ = (value) => {
+    return value
+      .replace(/\D/g, '') // Remove tudo que não é dígito
+      .replace(/^(\d{2})(\d)/, '$1.$2') // Coloca um ponto entre o segundo e o terceiro dígito
+      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // Coloca um ponto entre o quinto e o sexto dígito
+      .replace(/\.(\d{3})(\d)/, '.$1/$2') // Coloca uma barra entre o oitavo e o nono dígito
+      .replace(/(\d{4})(\d)/, '$1-$2'); // Coloca um hífen entre o décimo terceiro e o décimo quarto dígito
+  };
+
+  const formatCEP = (value) => {
+    return value
+      .replace(/\D/g, '') // Remove tudo que não é dígito
+      .replace(/^(\d{2})(\d)/, '$1.$2') // Coloca um ponto entre o segundo e o terceiro dígito
+      .replace(/\.(\d{3})(\d)/, '.$1-$2'); // Coloca um hífen entre o quinto e o sexto dígito
+  };
+
   const handleUnitChange = async (index, field, value) => {
     const newUnits = [...formState.units];
+
+    // Formatar CNPJ e CEP
+    if (field === 'cnpj') {
+      value = formatCNPJ(value);
+    } else if (field === 'cep') {
+      value = formatCEP(value);
+    }
+
     newUnits[index] = { ...newUnits[index], [field]: value };
 
     if (field === 'cnpj') {
-      newUnits[index].unitId = `U${value}N${index + 1}R`;
+      newUnits[index].unitId = `U${value.replace(/\D/g, '')}N${index + 1}R`;
 
       const formattedDate = formState.pricingDate.replace(/-/g, '');
       newUnits[index].pricingId = `${newUnits[index].unitId}${formattedDate}P`;
 
-      if (value.length === 14) {
+      if (value.replace(/\D/g, '').length === 14) {
         try {
-          const response = await axios.get(
-            `http://localhost:5001/call/cnpj_data/${value}`,
+          const response = await api.get(
+            `/call/cnpj_data/${value.replace(/\D/g, '')}`,
           );
-
           const data = response.data;
           newUnits[index] = {
             ...newUnits[index],
@@ -106,7 +129,6 @@ const PricingForm = () => {
       ? 'DETALHADO'
       : 'CONSOLIDADO';
 
-    console.log(dataType);
     setFormState((prevState) => {
       const newUnits = [...prevState.units];
       newUnits[index] = {
@@ -129,10 +151,8 @@ const PricingForm = () => {
       return;
     }
 
-    console.log(formState);
-
-    axios
-      .post('http://192.168.19.183:5001/api/submit_pricing_form', formState)
+    api
+      .post('/submit/pricing_form', formState)
       .then((response) => {
         console.log('Form submitted successfully:', response.data);
         setSuccessMessage('Dados enviados com sucesso!');
@@ -149,8 +169,8 @@ const PricingForm = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.19.183:5001/api/fetch_school_name/${formState.schoolName}`,
+      const response = await api.get(
+        `/call/school_data/${formState.schoolName}`,
       );
       setSearchResults(response.data);
       setIsModalOpen(true);

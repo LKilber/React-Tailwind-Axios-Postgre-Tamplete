@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from app.services.pricing_service import process_pricing_file
 
-pricing_bp = Blueprint('process', __name__)
+process_bp = Blueprint('process', __name__)
 
-@pricing_bp.route('/pricing', methods=['POST'])
+@process_bp.route('/pricing', methods=['POST'])
 @jwt_required()
 def pricing():
     try:

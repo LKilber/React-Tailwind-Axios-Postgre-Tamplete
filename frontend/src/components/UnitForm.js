@@ -150,7 +150,7 @@ const UnitForm = ({
     <div className="border-t border-gray-300 pt-4 mt-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Unidade {index + 1} - U{unit.cnpj}N{index + 1}R
+          Unidade {index + 1} - U{unit.cnpj.replace(/\D/g, '')}N{index + 1}R
         </h3>
         <FontAwesomeIcon
           icon={faChevronDown}
