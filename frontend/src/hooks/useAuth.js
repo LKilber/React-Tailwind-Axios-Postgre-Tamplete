@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import {
-  login as loginService,
+  simulateLogin as loginService,
   logout as logoutService,
 } from '../services/authService';
 

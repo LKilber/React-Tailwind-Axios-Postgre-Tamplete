@@ -1,11 +1,10 @@
-// pages/Tickets.js
 import React, { useState } from 'react';
 import '../styles/Tickets.css';
+import PricingTicket from '../components/tickets/PricingTicket';
 
 const Tickets = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
-  const [newTicket, setNewTicket] = useState({ title: '', sector: '' });
 
   const openModal = () => {
     setModalIsOpen(true);
@@ -15,17 +14,11 @@ const Tickets = () => {
     setModalIsOpen(false);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewTicket({ ...newTicket, [name]: value });
-  };
-
-  const addTicket = () => {
+  const addTicket = (ticket) => {
     setTickets([
       ...tickets,
-      { ...newTicket, id: tickets.length + 1, createdAt: new Date() },
+      { ...ticket, id: tickets.length + 1, createdAt: new Date() },
     ]);
-    setNewTicket({ title: '', sector: '' });
     closeModal();
   };
 
@@ -43,43 +36,17 @@ const Tickets = () => {
       <ul>
         {tickets.map((ticket) => (
           <li key={ticket.id}>
-            {ticket.title} - {ticket.sector} - SLA:{' '}
+            {ticket.cnpj} - {ticket.fantasyName} - SLA:{' '}
             {calculateSLA(ticket.createdAt)} days
           </li>
         ))}
       </ul>
 
-      {modalIsOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Add New Ticket</h2>
-            <form>
-              <label>
-                Title:
-                <input
-                  type="text"
-                  name="title"
-                  value={newTicket.title}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <label>
-                Sector:
-                <input
-                  type="text"
-                  name="sector"
-                  value={newTicket.sector}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <button type="button" onClick={addTicket}>
-                Add Ticket
-              </button>
-            </form>
-            <button onClick={closeModal}>Close</button>
-          </div>
-        </div>
-      )}
+      <PricingTicket
+        show={modalIsOpen}
+        handleClose={closeModal}
+        onSubmit={addTicket}
+      />
     </div>
   );
 };

@@ -15,7 +15,7 @@ export const login = async (credentials) => {
     // Extract user information from the access token payload
     const user = JSON.parse(atob(response.data.access.split('.')[1]));
     localStorage.setItem('user', JSON.stringify(user));
-    console.log(user);
+
     return user;
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -31,4 +31,24 @@ export const logout = () => {
   localStorage.removeItem('refresh');
   localStorage.removeItem('user');
   console.log(localStorage.getItem('user'));
+};
+
+// Simulated login for development purposes
+export const simulateLogin = () => {
+  const simulatedUser = {
+    id: 1,
+    username: 'testuser',
+    email: 'testuser@example.com',
+    roles: ['user'],
+  };
+
+  const simulatedAccessToken = 'simulatedAccessToken';
+  const simulatedRefreshToken = 'simulatedRefreshToken';
+
+  // Store the simulated tokens and user data
+  localStorage.setItem('access', simulatedAccessToken);
+  localStorage.setItem('refresh', simulatedRefreshToken);
+  localStorage.setItem('user', JSON.stringify(simulatedUser));
+
+  return simulatedUser;
 };
