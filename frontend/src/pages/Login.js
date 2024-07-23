@@ -2,66 +2,174 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import AuthLayout from '../layouts/AuthLayout';
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Paper,
+  Avatar,
+  CircularProgress,
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import loginBackground from '../assets/back2.mp4'; // Ensure the correct path to your video file
+import '../styles/Login.css'; // Ensure to import your CSS file
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await login({ username, password });
       navigate('/home');
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <AuthLayout>
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-full max-w-md bg-blue-500 p-8 rounded-lg shadow-lg">
-          <div className="text-center mb-6">
-            <h2 className="text-4xl font-bold text-white">Login</h2>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-white">
-                username
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            {error && <p className="text-red-500 text-center">{error}</p>}
-            <button
-              type="submit"
-              className="w-full py-3 bg-gray-800 text-white rounded-lg font-semibold text-center hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Login
-            </button>
-          </form>
-        </div>
+      <video autoPlay loop muted className="video-background">
+        <source src={loginBackground} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div className="centered-container">
+        <Container component="main" maxWidth="xs">
+          <Paper
+            elevation={6}
+            sx={{
+              padding: 4,
+              borderRadius: 2,
+              backgroundColor: '#1c1c1e', // Dark background color
+              color: '#ffffff', // White text color
+            }}
+          >
+            <Box display="flex" flexDirection="column" alignItems="center">
+              <Avatar sx={{ m: 1, bgcolor: '#424242' }}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h5">
+                Login
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleLogin}
+                noValidate
+                sx={{ mt: 1 }}
+              >
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  InputProps={{
+                    style: { color: '#ffffff' }, // Text color
+                  }}
+                  InputLabelProps={{
+                    style: { color: '#8c8c8e' }, // Label color
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#424242', // Border color
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#616161', // Hover border color
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#757575', // Focused border color
+                      },
+                    },
+                  }}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  InputProps={{
+                    style: { color: '#ffffff' }, // Text color
+                  }}
+                  InputLabelProps={{
+                    style: { color: '#8c8c8e' }, // Label color
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#424242', // Border color
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#616161', // Hover border color
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#757575', // Focused border color
+                      },
+                    },
+                  }}
+                />
+                {error && (
+                  <Typography color="error" align="center">
+                    {error}
+                  </Typography>
+                )}
+                <Box sx={{ position: 'relative', mt: 3, mb: 2 }}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    disabled={loading}
+                    sx={{
+                      backgroundColor: '#424242', // Button background color
+                      color: '#ffffff', // Button text color
+                      '&:hover': {
+                        backgroundColor: '#616161', // Hover background color
+                      },
+                    }}
+                  >
+                    Login
+                  </Button>
+                  {loading && (
+                    <CircularProgress
+                      size={24}
+                      sx={{
+                        color: '#ffffff', // Spinner color
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        marginTop: '-12px',
+                        marginLeft: '-12px',
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          </Paper>
+        </Container>
       </div>
     </AuthLayout>
   );

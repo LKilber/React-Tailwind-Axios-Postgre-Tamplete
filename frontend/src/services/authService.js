@@ -3,8 +3,20 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.19.128:8000',
 });
+
+const handleApiError = (error) => {
+  if (error.response) {
+    if (error.response.status === 401) {
+      throw new Error('Invalid credentials');
+    } else {
+      throw new Error(`Request failed with status: ${error.response.status}`);
+    }
+  } else {
+    throw new Error('An error occurred during the request');
+  }
+};
 
 export const login = async (credentials) => {
   try {
@@ -15,17 +27,11 @@ export const login = async (credentials) => {
     const user = await getUserInfo(accessToken);
     localStorage.setItem('user', JSON.stringify(user));
 
+    console.log(localStorage.getItem('user'));
+
     return { accessToken, user };
   } catch (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        throw new Error('Invalid credentials');
-      } else {
-        throw new Error(`Login failed with status: ${error.response.status}`);
-      }
-    } else {
-      throw new Error('An error occurred during login');
-    }
+    handleApiError(error);
   }
 };
 

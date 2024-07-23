@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-v1x!#-)ste!31ltx1l6s*lij^1i8pp4hio(4ych)kthse$p&k)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.19.59']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.19.128']
 
 # Application definition
 
@@ -92,9 +92,10 @@ SIMPLE_JWT = {
 
 SITE_ID = 1 
 
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    # outros domínios permitidos
+    "http://192.168.19.128:3000",
 ]
 
 # Configuração para permitir que o React acesse a API

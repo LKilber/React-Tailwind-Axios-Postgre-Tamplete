@@ -16,6 +16,7 @@ import Implantation from './pages/Implantation';
 import Pricing from './pages/Pricing';
 import ViewPricing from './pages/ViewPricing';
 import Tickets from './pages/Tickets';
+import TicketDetails from './pages/TicketDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import Admin from './pages/Admin';
 
@@ -72,6 +73,16 @@ const App = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Tickets />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tickets/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <TicketDetails />
                 </MainLayout>
               </ProtectedRoute>
             }

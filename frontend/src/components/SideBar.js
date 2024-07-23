@@ -12,7 +12,6 @@ import {
   FaTools,
 } from 'react-icons/fa';
 import '../styles/SideBar.css';
-import logo from '../assets/logo.png';
 
 const SideBar = ({ isOpen, onToggle }) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -24,9 +23,6 @@ const SideBar = ({ isOpen, onToggle }) => {
 
   return (
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar__logo">
-        <img src={logo} alt="Logo" />
-      </div>
       <button onClick={onToggle} className="sidebar__toggle">
         {isOpen ? <FaChevronLeft size={20} /> : <FaBars size={20} />}
       </button>

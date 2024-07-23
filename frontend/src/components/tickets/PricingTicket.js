@@ -63,7 +63,7 @@ const PricingTicket = ({ show, handleClose }) => {
         try {
           const token = localStorage.getItem('access_token');
           const response = await axios.get(
-            'http://127.0.0.1:8000/demand/pricing-groups/',
+            'http://192.168.19.128:8000/demand/pricing-groups/',
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -94,27 +94,59 @@ const PricingTicket = ({ show, handleClose }) => {
   const handleFormSubmit = () => {
     const data = new FormData();
 
-    Object.keys(formData).forEach((key) => {
-      if (key === 'units') {
-        formData.units.forEach((unit, index) => {
-          Object.keys(unit).forEach((unitKey) => {
-            if (Array.isArray(unit[unitKey])) {
-              unit[unitKey].forEach((file, fileIndex) => {
-                data.append(`units[${index}][${unitKey}][${fileIndex}]`, file);
-              });
-            } else {
-              data.append(`units[${index}][${unitKey}]`, unit[unitKey]);
-            }
-          });
-        });
-      } else {
-        data.append(key, formData[key]);
-      }
+    console.log('Initial formData:', formData);
+
+    data.append('group', formData.group);
+    data.append('selected_group', formData.selectedGroup);
+    data.append('unit_quantity', formData.unitQuantity);
+    data.append('pricing_type', formData.pricingType);
+
+    formData.units.forEach((unit, index) => {
+      data.append(`units[${index}].cnpj`, unit.cnpj);
+      data.append(`units[${index}].fantasy_name`, unit.fantasyName);
+      data.append(`units[${index}].social_reason`, unit.socialReason);
+      data.append(`units[${index}].inep_code`, unit.inepCode);
+      data.append(`units[${index}].cep`, unit.cep);
+      data.append(`units[${index}].address`, unit.address);
+      data.append(`units[${index}].observations`, unit.observations);
+      data.append(
+        `units[${index}].history_description`,
+        unit.historyDescription,
+      );
+      data.append(
+        `units[${index}].commercial_partners`,
+        unit.commercialPartners,
+      );
+      data.append(`units[${index}].partner_details`, unit.partnerDetails);
+      data.append(`units[${index}].history_profile`, unit.historyProfile);
+
+      unit.dataAttachments.forEach((file, fileIndex) => {
+        data.append(`units[${index}].data_attachments[${fileIndex}]`, file);
+        console.log(`data_attachments[${fileIndex}]`, file);
+      });
+      unit.contractAttachment.forEach((file, fileIndex) => {
+        data.append(`units[${index}].contract_attachment[${fileIndex}]`, file);
+        console.log(`contract_attachment[${fileIndex}]`, file);
+      });
+      unit.schoolStructureAttachments.forEach((file, fileIndex) => {
+        data.append(
+          `units[${index}].school_structure_attachments[${fileIndex}]`,
+          file,
+        );
+        console.log(`school_structure_attachments[${fileIndex}]`, file);
+      });
     });
 
+    // Log each entry in FormData to verify its contents
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
+    const token = localStorage.getItem('access_token');
     axios
-      .post('/api/pricing-tickets/', data, {
+      .post('http://192.168.19.128:8000/demand/pricing-tickets/', data, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       })
@@ -123,7 +155,10 @@ const PricingTicket = ({ show, handleClose }) => {
         handleClose();
       })
       .catch((error) => {
-        console.error('There was an error submitting the form!', error);
+        console.error(
+          'There was an error submitting the form!',
+          error.response.data,
+        );
       });
   };
 
