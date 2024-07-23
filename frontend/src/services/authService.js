@@ -1,25 +1,28 @@
+// services/authService.js
+
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'http://127.0.0.1:8000',
 });
 
 export const login = async (credentials) => {
   try {
     const response = await api.post('/auth/login/', credentials);
+    const accessToken = response.data.access;
+    localStorage.setItem('access_token', accessToken);
 
-    // Store the access token and optionally the refresh token
-    localStorage.setItem('access', response.data.access);
-    localStorage.setItem('refresh', response.data.refresh);
-
-    // Extract user information from the access token payload
-    const user = JSON.parse(atob(response.data.access.split('.')[1]));
+    const user = await getUserInfo(accessToken);
     localStorage.setItem('user', JSON.stringify(user));
 
-    return user;
+    return { accessToken, user };
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      throw new Error('Invalid credentials');
+    if (error.response) {
+      if (error.response.status === 401) {
+        throw new Error('Invalid credentials');
+      } else {
+        throw new Error(`Login failed with status: ${error.response.status}`);
+      }
     } else {
       throw new Error('An error occurred during login');
     }
@@ -27,28 +30,24 @@ export const login = async (credentials) => {
 };
 
 export const logout = () => {
-  localStorage.removeItem('access');
-  localStorage.removeItem('refresh');
+  localStorage.removeItem('access_token');
   localStorage.removeItem('user');
-  console.log(localStorage.getItem('user'));
 };
 
-// Simulated login for development purposes
-export const simulateLogin = () => {
-  const simulatedUser = {
-    id: 1,
-    username: 'testuser',
-    email: 'testuser@example.com',
-    roles: ['user'],
-  };
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('access_token');
+};
 
-  const simulatedAccessToken = 'simulatedAccessToken';
-  const simulatedRefreshToken = 'simulatedRefreshToken';
-
-  // Store the simulated tokens and user data
-  localStorage.setItem('access', simulatedAccessToken);
-  localStorage.setItem('refresh', simulatedRefreshToken);
-  localStorage.setItem('user', JSON.stringify(simulatedUser));
-
-  return simulatedUser;
+export const getUserInfo = async (token) => {
+  try {
+    const response = await api.get('/user/me/', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user info', error);
+    throw error;
+  }
 };

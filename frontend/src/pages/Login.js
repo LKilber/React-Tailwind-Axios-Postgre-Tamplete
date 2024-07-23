@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import AuthLayout from '../layouts/AuthLayout';
 
 const Login = () => {
-  const [cpf, setCpf] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      await login({ cpf, password });
+      await login({ username, password });
       navigate('/home');
     } catch (error) {
       setError(error.message);
@@ -31,12 +31,12 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-white">
-                cpf
+                username
               </label>
               <input
                 type="text"
-                value={cpf}
-                onChange={(e) => setCpf(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />

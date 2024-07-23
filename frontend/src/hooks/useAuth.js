@@ -1,7 +1,9 @@
+// hooks/useAuth.js
+
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import {
-  simulateLogin as loginService,
+  login as loginService,
   logout as logoutService,
 } from '../services/authService';
 
@@ -12,11 +14,11 @@ const useAuth = () => {
   const login = async (credentials) => {
     setLoading(true);
     try {
-      const user = await loginService(credentials);
+      const { user } = await loginService(credentials);
       setUser(user);
     } catch (err) {
       console.error('Error logging in:', err);
-      throw err; // Propagate the error
+      throw err;
     } finally {
       setLoading(false);
     }

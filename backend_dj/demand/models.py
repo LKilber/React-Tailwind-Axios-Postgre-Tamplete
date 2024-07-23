@@ -1,24 +1,46 @@
 from django.db import models
 
-# Create your models here.
-class Pricing(models.Model):
-    is_educational_group = models.BooleanField(default=False)
-    educational_group_name = models.TextField(blank=True, null=True)
-    priced_units_quantity = models.IntegerField(blank=True, null=True)
-    pricing_type = models.TextField(blank=True, null=True)
-    school_cnpj = models.TextField(blank=True, null=True)
-    trade_name = models.TextField(blank=True, null=True)
-    corporate_name = models.TextField(blank=True, null=True)
-    inep_code = models.TextField(blank=True, null=True)
-    postal_code = models.TextField(blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-    data_attachment = models.FileField(upload_to='attachments/data/', blank=True, null=True)
-    contract_attachment = models.FileField(upload_to='attachments/contract/', blank=True, null=True)
-    physical_structure_attachment = models.FileField(upload_to='attachments/physical_structure/', blank=True, null=True)
-    history = models.TextField(blank=True, null=True)
-    partner_confirmation = models.TextField(blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
+class PricingGroup(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
     def __str__(self):
-        return f"Ticket {self.id} - {self.trade_name or self.corporate_name}"
+        return self.name
+
+class PricingTicket(models.Model):
+    GROUP_CHOICES = [
+        ('yes', 'Yes'),
+        ('no', 'No'),
+    ]
+    PRICING_TYPE_CHOICES = [
+        ('Agrupada', 'Taxa Agrupada'),
+        ('Por Unidade', 'Taxa por Unidade'),
+    ]
+
+    group = models.CharField(max_length=3, choices=GROUP_CHOICES)
+    selected_group = models.ForeignKey(PricingGroup, on_delete=models.SET_NULL, null=True, blank=True)
+    unit_quantity = models.PositiveIntegerField()
+    pricing_type = models.CharField(max_length=11, choices=PRICING_TYPE_CHOICES)
+
+    def __str__(self):
+        return f"Pricing Ticket {self.id}"
+
+class SchoolUnit(models.Model):
+    pricing_ticket = models.ForeignKey(PricingTicket, related_name='units', on_delete=models.CASCADE)
+    cnpj = models.CharField(max_length=18)
+    fantasy_name = models.CharField(max_length=255)
+    social_reason = models.CharField(max_length=255)
+    inep_code = models.CharField(max_length=12, blank=True, null=True)
+    cep = models.CharField(max_length=9)
+    address = models.CharField(max_length=255)
+    observations = models.TextField(blank=True, null=True)
+    history_description = models.TextField(blank=True, null=True)
+    commercial_partners = models.BooleanField()
+    partner_details = models.TextField(blank=True, null=True)
+    history_profile = models.TextField(blank=True, null=True)
+    data_attachments = models.FileField(upload_to='data_attachments/', blank=True, null=True)
+    contract_attachment = models.FileField(upload_to='contract_attachments/', blank=True, null=True)
+    school_structure_attachments = models.FileField(upload_to='school_structure_attachments/', blank=True, null=True)
+
+    def __str__(self):
+        return f"School Unit {self.fantasy_name} for Ticket {self.pricing_ticket.id}"

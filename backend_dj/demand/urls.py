@@ -1,14 +1,13 @@
-# /demand/urls.py
+# demands/urls.py
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+from .views import PricingGroupViewSet, PricingTicketViewSet, SchoolUnitViewSet
 
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import path
-from .views import download_attachment, PricingCreateView
+router = DefaultRouter()
+router.register(r'pricing-groups', PricingGroupViewSet)
+router.register(r'pricing-tickets', PricingTicketViewSet)
+router.register(r'school-units', SchoolUnitViewSet)
 
 urlpatterns = [
-    path('download/<int:pk>/<str:field_name>/', download_attachment, name='download_attachment'),
-    path('api/pricing/', PricingCreateView.as_view(), name='pricing-create'),
+    path('', include(router.urls)),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
