@@ -1,6 +1,6 @@
 .navbar {
   background: #ffffff; /* Background color */
-  padding: 2rem 1rem;
+  padding: 2rem 1.25rem;
   display: flex;
   justify-content: space-between; /* Ensures space between logo and button */
   align-items: center;
@@ -15,7 +15,9 @@
   padding: 0.1rem 1rem;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+  transition:
+    background-color 0.3s,
+    transform 0.3s; /* Smooth transition */
   display: flex;
   align-items: center;
 }

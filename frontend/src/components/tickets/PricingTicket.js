@@ -22,7 +22,11 @@ import {
   ListItem,
   ListItemText,
   Grid,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const PricingTicket = ({ show, handleClose }) => {
   const { user } = useAuth();
@@ -230,7 +234,7 @@ const PricingTicket = ({ show, handleClose }) => {
             width: '90%',
             maxHeight: '90%',
             bgcolor: 'background.paper',
-            border: '2px solid #000',
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
             overflowY: 'auto',
@@ -307,168 +311,174 @@ const PricingTicket = ({ show, handleClose }) => {
           </Typography>
 
           {formData.units.map((unit, index) => (
-            <Box key={index} sx={{ mb: 4 }}>
-              <Typography variant="subtitle1" component="h3">
-                Unidade {index + 1}
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="CNPJ da Escola"
-                    name="cnpj"
-                    value={unit.cnpj}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
+            <Accordion key={index} sx={{ mb: 2 }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel${index}-content`}
+                id={`panel${index}-header`}
+              >
+                <Typography>Unidade {index + 1}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="CNPJ da Escola"
+                      name="cnpj"
+                      value={unit.cnpj}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Nome Fantasia"
+                      name="fantasyName"
+                      value={unit.fantasyName}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Razão Social"
+                      name="socialReason"
+                      value={unit.socialReason}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Código Inep (Select Não Possui)"
+                      name="inepCode"
+                      value={unit.inepCode}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="CEP"
+                      name="cep"
+                      value={unit.cep}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Endereço"
+                      name="address"
+                      value={unit.address}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Observações"
+                      name="observations"
+                      value={unit.observations}
+                      multiline
+                      rows={3}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Descrição do histórico de fases da prospecção e como se deu a forma contato com a escola"
+                      name="historyDescription"
+                      value={unit.historyDescription}
+                      multiline
+                      rows={3}
+                      onChange={(e) => handleInputChange(e, index)}
+                      margin="normal"
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Nome Fantasia"
-                    name="fantasyName"
-                    value={unit.fantasyName}
+
+                <FormControl component="fieldset" fullWidth margin="normal">
+                  <Typography component="legend">
+                    Confirmação com parceiros comerciais
+                  </Typography>
+                  <RadioGroup
+                    row
+                    name="commercialPartners"
+                    value={unit.commercialPartners}
                     onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                  >
+                    <FormControlLabel
+                      value="yes"
+                      control={<Radio />}
+                      label="Sim"
+                    />
+                    <FormControlLabel
+                      value="no"
+                      control={<Radio />}
+                      label="Não"
+                    />
+                  </RadioGroup>
+                </FormControl>
+
+                {unit.commercialPartners === 'yes' && (
                   <TextField
                     fullWidth
-                    label="Razão Social"
-                    name="socialReason"
-                    value={unit.socialReason}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Código Inep (Select Não Possui)"
-                    name="inepCode"
-                    value={unit.inepCode}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="CEP"
-                    name="cep"
-                    value={unit.cep}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Endereço"
-                    name="address"
-                    value={unit.address}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Observações"
-                    name="observations"
-                    value={unit.observations}
+                    label="Detalhamento se sim"
+                    name="partnerDetails"
+                    value={unit.partnerDetails}
                     multiline
                     rows={3}
                     onChange={(e) => handleInputChange(e, index)}
                     margin="normal"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Descrição do histórico de fases da prospecção e como se deu a forma contato com a escola"
-                    name="historyDescription"
-                    value={unit.historyDescription}
-                    multiline
-                    rows={3}
-                    onChange={(e) => handleInputChange(e, index)}
-                    margin="normal"
-                  />
-                </Grid>
-              </Grid>
+                )}
 
-              <FormControl component="fieldset" fullWidth margin="normal">
-                <Typography component="legend">
-                  Confirmação com parceiros comerciais
-                </Typography>
-                <RadioGroup
-                  row
-                  name="commercialPartners"
-                  value={unit.commercialPartners}
-                  onChange={(e) => handleInputChange(e, index)}
-                >
-                  <FormControlLabel
-                    value="yes"
-                    control={<Radio />}
-                    label="Sim"
-                  />
-                  <FormControlLabel
-                    value="no"
-                    control={<Radio />}
-                    label="Não"
-                  />
-                </RadioGroup>
-              </FormControl>
-
-              {unit.commercialPartners === 'yes' && (
                 <TextField
                   fullWidth
-                  label="Detalhamento se sim"
-                  name="partnerDetails"
-                  value={unit.partnerDetails}
+                  label="Detalhar o histórico e perfil"
+                  name="historyProfile"
+                  value={unit.historyProfile}
                   multiline
                   rows={3}
                   onChange={(e) => handleInputChange(e, index)}
                   margin="normal"
                 />
-              )}
 
-              <TextField
-                fullWidth
-                label="Detalhar o histórico e perfil"
-                name="historyProfile"
-                value={unit.historyProfile}
-                multiline
-                rows={3}
-                onChange={(e) => handleInputChange(e, index)}
-                margin="normal"
-              />
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                  <RenderDropzone
-                    name="dataAttachments"
-                    label="Anexo dados"
-                    index={index}
-                  />
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <RenderDropzone
+                      name="dataAttachments"
+                      label="Anexo dados"
+                      index={index}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <RenderDropzone
+                      name="contractAttachment"
+                      label="Anexo Contrato Qualitativo"
+                      index={index}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <RenderDropzone
+                      name="schoolStructureAttachments"
+                      label="Estrutura física da escola"
+                      index={index}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <RenderDropzone
-                    name="contractAttachment"
-                    label="Anexo Contrato Qualitativo"
-                    index={index}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <RenderDropzone
-                    name="schoolStructureAttachments"
-                    label="Estrutura física da escola"
-                    index={index}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+              </AccordionDetails>
+            </Accordion>
           ))}
 
           <Box textAlign="center" margin="normal">
