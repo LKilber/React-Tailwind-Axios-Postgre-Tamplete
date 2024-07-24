@@ -13,9 +13,36 @@ import {
   Paper,
   IconButton,
   Divider,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { deepPurple } from '@mui/material/colors';
+import { styled } from '@mui/system';
+
+const StyledSelect = styled(Select)({
+  borderRadius: '12px',
+  minWidth: '150px',
+  '& .MuiSelect-select': {
+    padding: '8px 16px',
+    border: 'none',
+    fontSize: '0.875rem',
+  },
+  '& .MuiOutlinedInput-notchedOutline': {
+    border: 'none',
+  },
+  '&:focus .MuiOutlinedInput-notchedOutline': {
+    border: 'none',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    border: 'none',
+  },
+  '& .MuiSelect-icon': {
+    color: '#fff',
+  },
+  backgroundColor: '#3f51b5',
+  color: '#fff',
+});
 
 const TicketDetail = () => {
   const { id } = useParams();
@@ -23,21 +50,27 @@ const TicketDetail = () => {
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
+  const [status, setStatus] = useState('');
+  const [responsibleSector, setResponsibleSector] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    const fetchTicket = async () => {
+    const fetchTicketDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://192.168.19.128:8000/demand/pricing-tickets/${id}/`,
+        const ticketResponse = await axios.get(
+          `http://192.168.19.128:8000/demand/demands/${id}/associated_tickets/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           },
         );
-        setTicket(response.data);
+        console.log(id);
+        setTicket(ticketResponse.data[0]);
+        setStatus(ticketResponse.data[0].status || '');
+        setResponsibleSector(ticketResponse.data[0].responsible_sector || '');
 
+        // Fetch comments related to the ticket
         const commentsResponse = await axios.get(
           `http://192.168.19.128:8000/demand/comments/ticket_comments/`,
           {
@@ -49,15 +82,15 @@ const TicketDetail = () => {
             },
           },
         );
-        setComments(commentsResponse.data);
+        setComments(commentsResponse.data || []); // Ensure it's always an array
       } catch (error) {
-        console.error('Error fetching ticket:', error);
+        console.error('Error fetching ticket details:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTicket();
+    fetchTicketDetails();
   }, [id]);
 
   const handleCommentSubmit = async () => {
@@ -67,7 +100,7 @@ const TicketDetail = () => {
       const response = await axios.post(
         `http://192.168.19.128:8000/demand/comments/`,
         {
-          pricing_ticket: id,
+          ticket: id,
           user: username,
           text: commentText,
         },
@@ -84,6 +117,42 @@ const TicketDetail = () => {
     }
   };
 
+  const handleStatusChange = async (newStatus) => {
+    const token = localStorage.getItem('access_token');
+    try {
+      await axios.patch(
+        `http://192.168.19.128:8000/demand/demands/${id}/`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setTicket((prev) => ({ ...prev, status: newStatus }));
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
+  };
+
+  const handleResponsibleSectorChange = async (newSector) => {
+    const token = localStorage.getItem('access_token');
+    try {
+      await axios.patch(
+        `http://192.168.19.128:8000/demand/demands/${id}/`,
+        { responsible_sector: newSector },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setTicket((prev) => ({ ...prev, responsible_sector: newSector }));
+    } catch (error) {
+      console.error('Error updating responsible sector:', error);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -93,8 +162,48 @@ const TicketDetail = () => {
   }
 
   return (
-    <Card sx={{ maxWidth: 800, margin: '20px auto', padding: '20px' }}>
+    <Card
+      sx={{
+        maxWidth: 800,
+        margin: '20px auto',
+        padding: '20px',
+        position: 'relative',
+      }}
+    >
       <CardContent>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            display: 'flex',
+            gap: 2,
+          }}
+        >
+          <StyledSelect
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              handleStatusChange(e.target.value);
+            }}
+          >
+            <MenuItem value="Aberto">Aberto</MenuItem>
+            <MenuItem value="Fechado">Fechado</MenuItem>
+            <MenuItem value="Em Progresso">Em Progresso</MenuItem>
+          </StyledSelect>
+
+          <StyledSelect
+            value={responsibleSector}
+            onChange={(e) => {
+              setResponsibleSector(e.target.value);
+              handleResponsibleSectorChange(e.target.value);
+            }}
+          >
+            <MenuItem value="Preço&Risco">Preço&Risco</MenuItem>
+            <MenuItem value="Outro Setor">Outro Setor</MenuItem>
+          </StyledSelect>
+        </Box>
+
         <Typography variant="h5" component="div">
           Ticket ID: {ticket.id}
         </Typography>
@@ -115,7 +224,7 @@ const TicketDetail = () => {
           <Typography variant="h6" component="div">
             Units:
           </Typography>
-          {ticket.units.map((unit, index) => (
+          {ticket.units?.map((unit, index) => (
             <Grid container spacing={2} key={index} mt={1}>
               <Grid item xs={6}>
                 <Typography variant="body2" color="text.secondary">
@@ -142,7 +251,7 @@ const TicketDetail = () => {
                   <Typography variant="body2" color="text.secondary">
                     <strong>Data Attachments:</strong>
                   </Typography>
-                  {unit.data_attachments.map((attachment) => (
+                  {unit.data_attachments?.map((attachment) => (
                     <Typography
                       key={attachment.id}
                       variant="body2"
@@ -162,7 +271,7 @@ const TicketDetail = () => {
                   <Typography variant="body2" color="text.secondary">
                     <strong>Contract Attachments:</strong>
                   </Typography>
-                  {unit.contract_attachment.map((attachment) => (
+                  {unit.contract_attachment?.map((attachment) => (
                     <Typography
                       key={attachment.id}
                       variant="body2"
@@ -182,7 +291,7 @@ const TicketDetail = () => {
                   <Typography variant="body2" color="text.secondary">
                     <strong>School Structure Attachments:</strong>
                   </Typography>
-                  {unit.school_structure_attachments.map((attachment) => (
+                  {unit.school_structure_attachments?.map((attachment) => (
                     <Typography
                       key={attachment.id}
                       variant="body2"
@@ -205,35 +314,41 @@ const TicketDetail = () => {
 
         <Box mt={2}>
           <Typography variant="h6" component="div">
-            Comments:
+            Comentários:
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          {comments.map((comment) => (
-            <Paper
-              key={comment.id}
-              sx={{ p: 2, mb: 1, backgroundColor: deepPurple[50] }}
-            >
-              <Box display="flex" alignItems="center" mb={1}>
-                <Avatar sx={{ bgcolor: deepPurple[500], mr: 2 }}>
-                  {comment.user.charAt(0).toUpperCase()}
-                </Avatar>
-                <Typography variant="subtitle2">{comment.user}</Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ ml: 2 }}
-                >
-                  {new Date(comment.created_at).toLocaleString()}
-                </Typography>
-              </Box>
-              <Typography variant="body2">{comment.text}</Typography>
-            </Paper>
-          ))}
+          {Array.isArray(comments) && comments.length > 0 ? (
+            comments.map((comment) => (
+              <Paper
+                key={comment.id}
+                sx={{ p: 2, mb: 1, backgroundColor: deepPurple[50] }}
+              >
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Avatar sx={{ bgcolor: deepPurple[500], mr: 2 }}>
+                    {comment.user.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Typography variant="subtitle2">{comment.user}</Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    {new Date(comment.created_at).toLocaleString()}
+                  </Typography>
+                </Box>
+                <Typography variant="body2">{comment.text}</Typography>
+              </Paper>
+            ))
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No comments available.
+            </Typography>
+          )}
         </Box>
 
         <Box mt={2} display="flex" alignItems="center">
           <TextField
-            label="Add a comment"
+            label="Adicionar um comentário..."
             multiline
             fullWidth
             value={commentText}

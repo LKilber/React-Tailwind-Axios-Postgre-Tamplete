@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const PricingTicket = ({ show, handleClose }) => {
+const PricingTicket = ({ show, handleClose, demandType }) => {
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -104,6 +104,7 @@ const PricingTicket = ({ show, handleClose }) => {
     data.append('selected_group', formData.selectedGroup);
     data.append('unit_quantity', formData.unitQuantity);
     data.append('pricing_type', formData.pricingType);
+    data.append('demand_type', demandType.id);
 
     formData.units.forEach((unit, index) => {
       data.append(`units[${index}].cnpj`, unit.cnpj);
@@ -141,14 +142,13 @@ const PricingTicket = ({ show, handleClose }) => {
       });
     });
 
-    // Log each entry in FormData to verify its contents
     for (let pair of data.entries()) {
       console.log(pair[0] + ': ' + pair[1]);
     }
 
     const token = localStorage.getItem('access_token');
     axios
-      .post('http://192.168.19.128:8000/demand/pricing-tickets/', data, {
+      .post('http://192.168.19.128:8000/demand/demands/', data, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -499,6 +499,7 @@ const PricingTicket = ({ show, handleClose }) => {
 PricingTicket.propTypes = {
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+  demandType: PropTypes.object.isRequired,
 };
 
 export default PricingTicket;

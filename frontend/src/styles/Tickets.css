@@ -1,78 +1,59 @@
-/* styles/Tickets.css */
 .tickets {
   padding: 20px;
 }
 
-.tickets h1 {
-  font-size: 2rem;
+.animated-button {
+  font-size: 16px;
+  font-weight: bold;
 }
 
-.tickets button {
-  margin-bottom: 20px;
-}
-
-.tickets ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.tickets li {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal {
-  background: white;
-  padding: 20px;
+.custom-popover .MuiPaper-root {
+  background-color: #f5f5f5;
   border-radius: 10px;
-  width: 300px;
-  max-width: 80%;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-.modal h2 {
-  margin-top: 0;
+.custom-popover .MuiPaper-root:hover {
+  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.15);
 }
 
-.modal form label {
-  display: block;
-  margin-bottom: 10px;
+.popover-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
-.modal form input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+.popover-item {
+  padding: 10px 20px;
+  margin: 5px 0;
   border-radius: 5px;
-}
-
-.modal form button {
-  margin-right: 10px;
-}
-
-.modal button {
-  padding: 8px 12px;
-  border: none;
-  background: #007bff;
-  color: white;
-  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.modal button:hover {
-  background: #0056b3;
+.popover-item:hover {
+  background-color: #6200ea;
+  color: #ffffff;
+}
+
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%; /* Make sure the list takes the full width */
+}
+
+.ticket-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%; /* Make sure the cards take the full width of the list */
 }

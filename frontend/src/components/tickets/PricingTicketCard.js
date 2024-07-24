@@ -1,62 +1,87 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardContent, Typography, Grid, Box } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Box, Chip } from '@mui/material';
 import { Link } from 'react-router-dom';
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'Aberto':
+      return 'primary';
+    case 'Fechado':
+      return 'default';
+    case 'Em Progresso':
+      return 'secondary';
+    default:
+      return 'default';
+  }
+};
+
+const getSectorColor = (sector) => {
+  switch (sector) {
+    case 'Preço&Risco':
+      return 'success';
+    case 'Outro Setor':
+      return 'warning';
+    default:
+      return 'default';
+  }
+};
 
 const PricingTicketCard = ({ ticket }) => {
   return (
     <Card
       component={Link}
       to={`/tickets/${ticket.id}`}
-      sx={{ maxWidth: 600, margin: '20px auto', textDecoration: 'none' }}
+      sx={{
+        margin: '20px auto',
+        textDecoration: 'none',
+        backgroundColor: 'white',
+        border: '1px solid rgba(0, 0, 0, 0.12)',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        },
+        display: 'block',
+        position: 'relative',
+        width: '100%', // Adicionado para garantir que ocupe toda a largura do contêiner pai
+      }}
     >
       <CardContent>
-        <Typography variant="h5" component="div">
-          Ticket ID: {ticket.id}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Group: {ticket.group}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Selected Group: {ticket.selected_group}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Unit Quantity: {ticket.unit_quantity}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Pricing Type: {ticket.pricing_type}
-        </Typography>
-
-        <Box mt={2}>
-          <Typography variant="h6" component="div">
-            Units:
-          </Typography>
-          {ticket.units.map((unit, index) => (
-            <Grid container spacing={2} key={index} mt={1}>
-              <Grid item xs={6}>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>CNPJ:</strong> {unit.cnpj}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Fantasy Name:</strong> {unit.fantasy_name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Social Reason:</strong> {unit.social_reason}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>INEP Code:</strong> {unit.inep_code}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>CEP:</strong> {unit.cep}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Address:</strong> {unit.address}
-                </Typography>
-              </Grid>
-            </Grid>
-          ))}
+        <Grid container direction="column" spacing={1}>
+          <Grid item>
+            <Typography variant="body2" color="text.secondary">
+              Created At: {new Date(ticket.created_at).toLocaleString()}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2" color="text.secondary">
+              Created By: {ticket.created_by}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2" color="text.secondary">
+              Demand Type: {ticket.demand_type}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2" color="text.secondary">
+              Responsible: {ticket.responsible || 'Not Assigned'}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            display: 'flex',
+            gap: 1,
+          }}
+        >
+          <Chip label={ticket.status} color={getStatusColor(ticket.status)} />
+          <Chip
+            label={ticket.responsible_sector}
+            color={getSectorColor(ticket.responsible_sector)}
+          />
         </Box>
       </CardContent>
     </Card>
@@ -65,21 +90,13 @@ const PricingTicketCard = ({ ticket }) => {
 
 PricingTicketCard.propTypes = {
   ticket: PropTypes.shape({
+    created_at: PropTypes.string.isRequired,
+    created_by: PropTypes.string.isRequired,
+    demand_type: PropTypes.number.isRequired,
     id: PropTypes.number.isRequired,
-    group: PropTypes.string.isRequired,
-    selected_group: PropTypes.string.isRequired,
-    unit_quantity: PropTypes.number.isRequired,
-    pricing_type: PropTypes.string.isRequired,
-    units: PropTypes.arrayOf(
-      PropTypes.shape({
-        cnpj: PropTypes.string.isRequired,
-        fantasy_name: PropTypes.string.isRequired,
-        social_reason: PropTypes.string.isRequired,
-        inep_code: PropTypes.string.isRequired,
-        cep: PropTypes.string.isRequired,
-        address: PropTypes.string.isRequired,
-      }),
-    ).isRequired,
+    responsible: PropTypes.string,
+    responsible_sector: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
   }).isRequired,
 };
 

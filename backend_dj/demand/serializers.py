@@ -1,9 +1,19 @@
 from rest_framework import serializers
-from .models import PricingGroup, Comment, PricingTicket, PricingTicketUnit, Attachment
+from .models import SchoolGroup, Demand, DemandType, Comment, PricingTicket, PricingTicketUnit, Attachment
 
-class PricingGroupSerializer(serializers.ModelSerializer):
+class DemandSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PricingGroup
+        model = Demand
+        fields = '__all__'
+
+class DemandTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DemandType
+        fields = '__all__'
+
+class SchoolGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGroup
         fields = '__all__'
 
 class AttachmentSerializer(serializers.ModelSerializer):
