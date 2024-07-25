@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-import uuid
+from datetime import timedelta, date
 
 class DemandType(models.Model):
     name = models.CharField(max_length=255)
@@ -12,21 +12,25 @@ class Demand(models.Model):
     demand_type = models.ForeignKey(DemandType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=255)
-    responsible = models.CharField(max_length=255, null=True)
-    responsible_sector = models.CharField(max_length=255, null=True)
+    responsible = models.CharField(max_length=255, null=True, blank=True)
+    responsible_sector = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=50, null=True, blank=True)
-
+    duration = models.DurationField(default=timedelta)
+    due_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return f"Demand {self.ticket_id} - {self.demand_type.name}"
+        return f"Demand {self.id} - {self.demand_type.name}"
 
     def save(self, *args, **kwargs):
         if not self.responsible_sector:
             self.responsible_sector = "Preço&Risco"
         if not self.status:
             self.status = "Aberto"
+        if not self.duration:
+            self.duration = timedelta(hours=30)
+        if not self.due_date:
+            self.due_date = (self.created_at + timedelta(days=2)).date()
         super().save(*args, **kwargs)
-
 
 class SchoolGroup(models.Model):
     name = models.CharField(max_length=255)

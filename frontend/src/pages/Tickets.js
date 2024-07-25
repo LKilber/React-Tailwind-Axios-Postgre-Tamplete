@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
+import Skeleton from '@mui/material/Skeleton';
 import '../styles/Tickets.css';
 import PricingTicket from '../components/tickets/PricingTicket';
 import PricingTicketCard from '../components/tickets/PricingTicketCard';
+import {
+  fetchTickets,
+  fetchDemandTypes,
+  addNewTicket,
+} from '../services/ticketService';
 
 const Tickets = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -14,45 +19,27 @@ const Tickets = () => {
   const [tickets, setTickets] = useState([]);
   const [demandTypes, setDemandTypes] = useState([]);
   const [selectedDemandType, setSelectedDemandType] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
 
-    const fetchTickets = async () => {
+    const loadData = async () => {
       try {
-        const response = await axios.get(
-          'http://192.168.19.128:8000/demand/demands/',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        setTickets(response.data || []); // Ensure response data is always an array
-        console.log('Fetched tickets:', response.data);
+        const [ticketsData, demandTypesData] = await Promise.all([
+          fetchTickets(token),
+          fetchDemandTypes(token),
+        ]);
+        setTickets(ticketsData);
+        setDemandTypes(demandTypesData);
       } catch (error) {
-        console.error('Error fetching tickets:', error);
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchDemandTypes = async () => {
-      try {
-        const response = await axios.get(
-          'http://192.168.19.128:8000/demand/demand-types/',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        setDemandTypes(response.data || []); // Ensure response data is always an array
-      } catch (error) {
-        console.error('Error fetching demand types:', error);
-      }
-    };
-
-    fetchTickets();
-    fetchDemandTypes();
+    loadData();
   }, []);
 
   const openPopover = (event) => {
@@ -73,42 +60,26 @@ const Tickets = () => {
     setModalIsOpen(false);
   };
 
-  const addTicket = async (ticket) => {
+  const addTicket = useCallback(async (ticket) => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await axios.post(
-        'http://192.168.19.128:8000/demand/demands/',
-        ticket,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setTickets([...tickets, response.data] || []);
+      const newTicket = await addNewTicket(ticket, token);
+      setTickets((prevTickets) => [...prevTickets, newTicket]);
       closeModal();
     } catch (error) {
       console.error('Error adding ticket:', error);
     }
-  };
+  }, []);
 
   return (
     <div className="tickets">
       <Button
         variant="contained"
         color="primary"
-        startIcon={<AddIcon />}
         onClick={openPopover}
-        style={{
-          marginBottom: '20px',
-          backgroundColor: '#6200ea',
-          borderRadius: '50px',
-          padding: '10px 20px',
-          transition: 'background-color 0.3s ease',
-        }}
         className="animated-button"
       >
-        Nova Demanda
+        <AddIcon />
       </Button>
       <Popover
         open={Boolean(popoverAnchorEl)}
@@ -137,7 +108,26 @@ const Tickets = () => {
         </div>
       </Popover>
       <div className="tickets-list">
-        {Array.isArray(tickets) && tickets.length > 0 ? (
+        <div className="tickets-header">
+          <Typography variant="subtitle2">ID</Typography>
+          <Typography variant="subtitle2">Criação</Typography>
+          <Typography variant="subtitle2">Status</Typography>
+          <Typography variant="subtitle2">Demanda</Typography>
+          <Typography variant="subtitle2">Criado por</Typography>
+          <Typography variant="subtitle2">Responsável Atual</Typography>
+          <Typography variant="subtitle2">Duração</Typography>
+          <Typography variant="subtitle2">Entrega</Typography>
+        </div>
+        {loading ? (
+          Array.from(new Array(5)).map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              width="100%"
+              height={40}
+            />
+          ))
+        ) : tickets.length > 0 ? (
           tickets.map((ticket) => (
             <PricingTicketCard key={ticket.id} ticket={ticket} />
           ))
