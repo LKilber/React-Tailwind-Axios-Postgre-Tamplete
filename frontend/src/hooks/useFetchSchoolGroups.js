@@ -10,7 +10,7 @@ const useFetchSchoolGroups = (user) => {
         try {
           const token = localStorage.getItem('access_token');
           const response = await axios.get(
-            'http://127.0.0.1:8000/demand/pricing-groups/',
+            'http://192.168.19.128:8000/demand/pricing-groups/',
             {
               headers: {
                 Authorization: `Bearer ${token}`,

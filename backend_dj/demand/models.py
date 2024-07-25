@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta, date
+from datetime import timedelta, datetime
 
 class DemandType(models.Model):
     name = models.CharField(max_length=255)
@@ -15,13 +15,15 @@ class Demand(models.Model):
     responsible = models.CharField(max_length=255, null=True, blank=True)
     responsible_sector = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=50, null=True, blank=True)
-    duration = models.DurationField(default=timedelta)
+    duration = models.DurationField(default=timedelta(hours=30))
     due_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Demand {self.id} - {self.demand_type.name}"
 
     def save(self, *args, **kwargs):
+        if not self.created_at:
+            self.created_at = timezone.now()
         if not self.responsible_sector:
             self.responsible_sector = "Preço&Risco"
         if not self.status:
@@ -45,7 +47,7 @@ class TicketChangeHistory(models.Model):
     change_description = models.TextField()
 
     def __str__(self):
-        return f"History for Demand {self.ticket.ticket_id} at {self.change_date}"
+        return f"History for Demand {self.ticket.id} at {self.change_date}"
 
 class PricingTicket(models.Model):
     ticket = models.ForeignKey(Demand, related_name='pricing', on_delete=models.CASCADE)
@@ -55,7 +57,7 @@ class PricingTicket(models.Model):
     pricing_type = models.CharField(max_length=11)
     commercial_partners = models.BooleanField(null=True)
 
-    def save(self, *args, **kwargs):        
+    def save(self, *args, **kwargs):
         if self.pk:
             old_instance = PricingTicket.objects.get(pk=self.pk)
             changes = []
@@ -76,13 +78,6 @@ class PricingTicket(models.Model):
     def __str__(self):
         return f"Pricing Ticket {self.id}"
 
-
-    def __str__(self):
-        return f"Pricing Ticket {self.id}"
-
-class Attachment(models.Model):
-    file = models.FileField(upload_to='attachments/')
-
 class PricingTicketUnit(models.Model):
     pricing_ticket = models.ForeignKey(PricingTicket, related_name='units', on_delete=models.CASCADE)
     cnpj = models.CharField(max_length=18, null=True)
@@ -95,12 +90,18 @@ class PricingTicketUnit(models.Model):
     history_description = models.TextField(blank=True, null=True)
     partner_details = models.TextField(blank=True, null=True)
     history_profile = models.TextField(blank=True, null=True)
-    data_attachments = models.ManyToManyField(Attachment, related_name='data_attachments', blank=True)
-    contract_attachments = models.ManyToManyField(Attachment, related_name='contract_attachments', blank=True)
-    school_structure_attachments = models.ManyToManyField(Attachment, related_name='school_structure_attachments', blank=True)
 
     def __str__(self):
         return f"Unit {self.id} for Pricing Ticket {self.pricing_ticket.id}"
+
+class Attachment(models.Model):
+    ticket = models.ForeignKey(Demand, related_name='attachments', on_delete=models.CASCADE)
+    unit = models.ForeignKey(PricingTicketUnit, related_name='attachments', on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(upload_to='attachments/')
+    type = models.CharField(max_length=11)
+
+    def __str__(self):
+        return f"Attachment {self.id} for Demand {self.ticket.id}"
 
 class Comment(models.Model):
     ticket = models.ForeignKey(Demand, related_name='comments', on_delete=models.CASCADE)
@@ -109,4 +110,4 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment {self.id} on Demand {self.ticket.ticket_id}"
+        return f"Comment {self.id} on Demand {self.ticket.id}"

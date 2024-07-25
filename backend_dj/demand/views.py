@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
 from .models import SchoolGroup, PricingTicket, Comment, Demand, DemandType
-from .serializers import DemandSerializer, DemandTypeSerializer, SchoolGroupSerializer, PricingTicketSerializer, CommentSerializer
+from .serializers import DemandSerializer, DemandTypeSerializer, AttachmentSerializer, SchoolGroupSerializer, PricingTicketSerializer, CommentSerializer
 
 class DemandViewSet(viewsets.ModelViewSet):
     queryset = Demand.objects.all()
@@ -56,10 +56,21 @@ class DemandViewSet(viewsets.ModelViewSet):
             pricing_ticket_serializer = PricingTicketSerializer(data=pricing_ticket_data)
             if pricing_ticket_serializer.is_valid():
                 pricing_ticket_serializer.save()
+
+                attachments_data = data.get(f'units[{i}].attachments', [])
+                for attachment_data in attachments_data:
+                    attachment_data['unit'] = unit.id
+                    attachment_data['ticket'] = demand.id
+                    attachment_serializer = AttachmentSerializer(data=attachment_data)
+                    if attachment_serializer.is_valid():
+                        attachment_serializer.save()
+                    else:
+                        print("Validation errors in Attachment:", attachment_serializer.errors)
+                        return Response(attachment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 print("Validation errors in PricingTicket:", pricing_ticket_serializer.errors)
                 return Response(pricing_ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['get'])

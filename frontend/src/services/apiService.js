@@ -68,3 +68,35 @@ const apiService = {
 };
 
 export default apiService;
+
+const api = axios.create({
+  baseURL: 'http://192.168.19.128:8000/demand',
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+  },
+});
+
+export const fetchTicketDetails = async (id) => {
+  const response = await api.get(`/demands/${id}/associated_tickets/`);
+  return response.data[0];
+};
+
+export const fetchComments = async (ticketId) => {
+  const response = await api.get(`/comments/ticket_comments/`, {
+    params: { ticket_id: ticketId },
+  });
+  return response.data;
+};
+
+export const addComment = async (commentData) => {
+  const response = await api.post(`/comments/`, commentData);
+  return response.data;
+};
+
+export const updateTicketStatus = async (id, newStatus) => {
+  await api.patch(`/demands/${id}/`, { status: newStatus });
+};
+
+export const updateResponsibleSector = async (id, newSector) => {
+  await api.patch(`/demands/${id}/`, { responsible_sector: newSector });
+};

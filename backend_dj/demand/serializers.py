@@ -27,9 +27,6 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PricingTicketUnitSerializer(serializers.ModelSerializer):
-    data_attachments = AttachmentSerializer(many=True, required=False)
-    contract_attachment = AttachmentSerializer(many=True, required=False)
-    school_structure_attachments = AttachmentSerializer(many=True, required=False)
     comments = CommentSerializer(many=True, read_only=True)
     
     class Meta:
@@ -40,24 +37,7 @@ class PricingTicketUnitSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        data_attachments_data = validated_data.pop('data_attachments', [])
-        contract_attachment_data = validated_data.pop('contract_attachment', [])
-        school_structure_attachments_data = validated_data.pop('school_structure_attachments', [])
-
         unit = PricingTicketUnit.objects.create(**validated_data)
-
-        for attachment_data in data_attachments_data:
-            attachment = Attachment.objects.create(**attachment_data)
-            unit.data_attachments.add(attachment)
-
-        for attachment_data in contract_attachment_data:
-            attachment = Attachment.objects.create(**attachment_data)
-            unit.contract_attachment.add(attachment)
-
-        for attachment_data in school_structure_attachments_data:
-            attachment = Attachment.objects.create(**attachment_data)
-            unit.school_structure_attachments.add(attachment)
-
         return unit
 
 class PricingTicketSerializer(serializers.ModelSerializer):

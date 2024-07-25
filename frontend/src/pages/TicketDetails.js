@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// src/components/TicketDetail.js
+
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import {
   Card,
   CardContent,
@@ -19,6 +20,12 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import { deepPurple } from '@mui/material/colors';
 import { styled } from '@mui/system';
+import { useTicketDetails } from '../hooks/useTicketDetails';
+import {
+  addComment,
+  updateTicketStatus,
+  updateResponsibleSector,
+} from '../services/apiService';
 
 const StyledSelect = styled(Select)({
   borderRadius: '12px',
@@ -46,71 +53,23 @@ const StyledSelect = styled(Select)({
 
 const TicketDetail = () => {
   const { id } = useParams();
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { ticket, comments, loading, setTicket, setComments } =
+    useTicketDetails(id);
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([]);
-  const [status, setStatus] = useState('');
-  const [responsibleSector, setResponsibleSector] = useState('');
-
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const fetchTicketDetails = async () => {
-      try {
-        const ticketResponse = await axios.get(
-          `http://192.168.19.128:8000/demand/demands/${id}/associated_tickets/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        console.log(id);
-        setTicket(ticketResponse.data[0]);
-        setStatus(ticketResponse.data[0].status || '');
-        setResponsibleSector(ticketResponse.data[0].responsible_sector || '');
-
-        // Fetch comments related to the ticket
-        const commentsResponse = await axios.get(
-          `http://192.168.19.128:8000/demand/comments/ticket_comments/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            params: {
-              ticket_id: id,
-            },
-          },
-        );
-        setComments(commentsResponse.data || []); // Ensure it's always an array
-      } catch (error) {
-        console.error('Error fetching ticket details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTicketDetails();
-  }, [id]);
+  const [status, setStatus] = useState(ticket?.status || '');
+  const [responsibleSector, setResponsibleSector] = useState(
+    ticket?.responsible_sector || '',
+  );
 
   const handleCommentSubmit = async () => {
-    const token = localStorage.getItem('access_token');
     const username = JSON.parse(localStorage.getItem('user')).username;
     try {
-      const response = await axios.post(
-        `http://192.168.19.128:8000/demand/comments/`,
-        {
-          ticket: id,
-          user: username,
-          text: commentText,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setComments([...comments, response.data]);
+      const newComment = await addComment({
+        ticket: id,
+        user: username,
+        text: commentText,
+      });
+      setComments((prevComments) => [...prevComments, newComment]);
       setCommentText('');
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -118,36 +77,21 @@ const TicketDetail = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
-    const token = localStorage.getItem('access_token');
     try {
-      await axios.patch(
-        `http://192.168.19.128:8000/demand/demands/${id}/`,
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setTicket((prev) => ({ ...prev, status: newStatus }));
+      await updateTicketStatus(id, newStatus);
+      setTicket((prevTicket) => ({ ...prevTicket, status: newStatus }));
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
 
   const handleResponsibleSectorChange = async (newSector) => {
-    const token = localStorage.getItem('access_token');
     try {
-      await axios.patch(
-        `http://192.168.19.128:8000/demand/demands/${id}/`,
-        { responsible_sector: newSector },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setTicket((prev) => ({ ...prev, responsible_sector: newSector }));
+      await updateResponsibleSector(id, newSector);
+      setTicket((prevTicket) => ({
+        ...prevTicket,
+        responsible_sector: newSector,
+      }));
     } catch (error) {
       console.error('Error updating responsible sector:', error);
     }
