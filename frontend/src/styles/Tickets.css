@@ -1,6 +1,7 @@
 .animated-button {
+  position: fixed;
   top: 20px;
-  left: 96%;
+  left: 95.5%;
   background: #007bff;
   border-radius: 50%;
   width: 50px;
@@ -59,9 +60,6 @@
   background-color: #ffffff;
   margin-top: 60px;
   border-radius: 15px;
-  min-height: 100px; /* Define a altura mínima */
-  max-height: 80vh; /* Define a altura máxima */
-  overflow-y: auto; /* Permite rolagem se o conteúdo for maior que a altura */
   padding: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
@@ -99,6 +97,7 @@
   border-bottom: 1px solid #ddd;
   transition: background-color 0.3s ease;
   cursor: pointer; /* Adiciona cursor de ponteiro */
+  align-items: center;
 }
 
 .ticket-row:hover {

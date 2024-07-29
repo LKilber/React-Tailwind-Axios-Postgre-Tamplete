@@ -81,18 +81,19 @@ const CommentsContainer = styled(Box)({
 });
 
 const TicketDetailModal = ({ open, onClose, selectedTicket, onUpdate }) => {
+  const selectedTicketId = selectedTicket.id;
   const { ticket, comments, setTicket, setComments } =
-    useTicketDetails(selectedTicket);
+    useTicketDetails(selectedTicketId);
   const [commentText, setCommentText] = useState('');
   const [status, setStatus] = useState('');
   const [responsibleSector, setResponsibleSector] = useState('');
 
   useEffect(() => {
-    if (selectedTicket) {
+    if (selectedTicketId) {
       const fetchTicket = async () => {
         try {
           const token = localStorage.getItem('access_token');
-          const fetchedTicket = await fetchTicketById(selectedTicket, token);
+          const fetchedTicket = await fetchTicketById(selectedTicketId, token);
           setStatus(fetchedTicket.status || '');
           setResponsibleSector(fetchedTicket.responsible_sector || '');
         } catch (error) {
@@ -101,13 +102,13 @@ const TicketDetailModal = ({ open, onClose, selectedTicket, onUpdate }) => {
       };
       fetchTicket();
     }
-  }, [selectedTicket]);
+  }, [selectedTicketId]);
 
   const handleCommentSubmit = async () => {
     const username = JSON.parse(localStorage.getItem('user')).username;
     try {
       const newComment = await addComment({
-        ticket: selectedTicket,
+        ticket: selectedTicketId,
         user: username,
         text: commentText,
       });
@@ -120,7 +121,7 @@ const TicketDetailModal = ({ open, onClose, selectedTicket, onUpdate }) => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await updateTicketStatus(selectedTicket, newStatus);
+      await updateTicketStatus(selectedTicketId, newStatus);
       setTicket((prevTicket) => ({ ...prevTicket, status: newStatus }));
       onUpdate();
     } catch (error) {
@@ -130,7 +131,7 @@ const TicketDetailModal = ({ open, onClose, selectedTicket, onUpdate }) => {
 
   const handleResponsibleSectorChange = async (newSector) => {
     try {
-      await updateResponsibleSector(selectedTicket, newSector);
+      await updateResponsibleSector(selectedTicketId, newSector);
       setTicket((prevTicket) => ({
         ...prevTicket,
         responsible_sector: newSector,

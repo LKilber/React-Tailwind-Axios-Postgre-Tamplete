@@ -51,11 +51,11 @@ class TicketChangeHistory(models.Model):
 
 class PricingTicket(models.Model):
     ticket = models.ForeignKey(Demand, related_name='pricing', on_delete=models.CASCADE)
-    group = models.CharField(max_length=3)
+    group = models.CharField(max_length=5)
     selected_group = models.ForeignKey(SchoolGroup, on_delete=models.SET_NULL, null=True, blank=True)
     unit_quantity = models.PositiveIntegerField()
     pricing_type = models.CharField(max_length=11)
-    commercial_partners = models.BooleanField(null=True)
+    partner_confirmation = models.BooleanField(null=True)
 
     def save(self, *args, **kwargs):
         if self.pk:
@@ -87,18 +87,13 @@ class PricingTicketUnit(models.Model):
     cep = models.CharField(max_length=9, null=True)
     address = models.CharField(max_length=255, null=True)
     observations = models.TextField(blank=True, null=True)
-    history_description = models.TextField(blank=True, null=True)
-    partner_details = models.TextField(blank=True, null=True)
-    history_profile = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Unit {self.id} for Pricing Ticket {self.pricing_ticket.id}"
 
 class Attachment(models.Model):
     ticket = models.ForeignKey(Demand, related_name='attachments', on_delete=models.CASCADE)
-    unit = models.ForeignKey(PricingTicketUnit, related_name='attachments', on_delete=models.CASCADE, null=True, blank=True)
     file = models.FileField(upload_to='attachments/')
-    type = models.CharField(max_length=11)
 
     def __str__(self):
         return f"Attachment {self.id} for Demand {self.ticket.id}"

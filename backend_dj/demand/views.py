@@ -10,8 +10,9 @@ class DemandViewSet(viewsets.ModelViewSet):
     serializer_class = DemandSerializer
 
     def create(self, request, *args, **kwargs):
-        data = request.data
-        data['created_by'] = request.user.username  # Preenche o campo created_by
+        data = request.data.copy()
+        data['created_by'] = request.user.id  # Usando o ID do usuário
+
         serializer = self.get_serializer(data=data)
 
         if not serializer.is_valid():
@@ -19,7 +20,7 @@ class DemandViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         demand = serializer.save()
-        
+
         # Verifica se o tipo de demanda é Precificação e cria o ticket de precificação
         if demand.demand_type.name == 'Precificação':
             pricing_ticket_data = {
@@ -28,14 +29,15 @@ class DemandViewSet(viewsets.ModelViewSet):
                 'selected_group': data.get('selected_group'),
                 'unit_quantity': data.get('unit_quantity'),
                 'pricing_type': data.get('pricing_type'),
-                'commercial_partners': data.get('commercial_partners'),
+                'partner_confirmation': data.get('partner_confirmation'),
                 'responsible': data.get('responsible'),
                 'responsible_sector': data.get('responsible_sector'),
                 'status': data.get('status')
             }
 
             units_data = []
-            for i in range(int(data.get('unit_quantity', 0))):
+            unit_quantity = int(data.get('unit_quantity', 0))
+            for i in range(unit_quantity):
                 unit = {
                     'cnpj': data.get(f'units[{i}].cnpj'),
                     'fantasy_name': data.get(f'units[{i}].fantasy_name'),
@@ -44,10 +46,6 @@ class DemandViewSet(viewsets.ModelViewSet):
                     'cep': data.get(f'units[{i}].cep'),
                     'address': data.get(f'units[{i}].address'),
                     'observations': data.get(f'units[{i}].observations'),
-                    'history_description': data.get(f'units[{i}].history_description'),
-                    'commercial_partners': data.get(f'units[{i}].commercial_partners') == 'yes',
-                    'partner_details': data.get(f'units[{i}].partner_details'),
-                    'history_profile': data.get(f'units[{i}].history_profile')
                 }
                 units_data.append(unit)
             
@@ -56,27 +54,26 @@ class DemandViewSet(viewsets.ModelViewSet):
             pricing_ticket_serializer = PricingTicketSerializer(data=pricing_ticket_data)
             if pricing_ticket_serializer.is_valid():
                 pricing_ticket_serializer.save()
-
-                attachments_data = data.get(f'units[{i}].attachments', [])
-                for attachment_data in attachments_data:
-                    attachment_data['unit'] = unit.id
-                    attachment_data['ticket'] = demand.id
-                    attachment_serializer = AttachmentSerializer(data=attachment_data)
-                    if attachment_serializer.is_valid():
-                        attachment_serializer.save()
-                    else:
-                        print("Validation errors in Attachment:", attachment_serializer.errors)
-                        return Response(attachment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                print("Validation errors in PricingTicket:", pricing_ticket_serializer.errors)
-                return Response(pricing_ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+                print("Pricing ticket validation errors:", pricing_ticket_serializer.errors)
+
+        attachments = request.FILES.getlist('attachments')
+        for attachment in attachments:
+            attachment_data = {
+                'ticket': demand.id,
+                'file': attachment
+            }
+            attachment_serializer = AttachmentSerializer(data=attachment_data)
+            if attachment_serializer.is_valid():
+                attachment_serializer.save()
+            else:
+                print("Attachment validation errors:", attachment_serializer.errors)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['get'])
     def associated_tickets(self, request, pk=None):
         tickets = PricingTicket.objects.filter(ticket=pk)
-        print(tickets)
         serializer = PricingTicketSerializer(tickets, many=True)
         return Response(serializer.data)
 

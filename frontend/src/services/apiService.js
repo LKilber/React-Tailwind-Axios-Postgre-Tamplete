@@ -9,6 +9,10 @@ const apiService = {
     data.append('unit_quantity', formData.unitQuantity);
     data.append('pricing_type', formData.pricingType);
     data.append('demand_type', demandTypeId);
+    data.append('partner_confirmation', formData.partnerConfirmation);
+    formData.attachments.forEach((file) => {
+      data.append(`attachments`, file);
+    });
 
     formData.units.forEach((unit, index) => {
       data.append(`units[${index}].cnpj`, unit.cnpj);
@@ -18,29 +22,6 @@ const apiService = {
       data.append(`units[${index}].cep`, unit.cep);
       data.append(`units[${index}].address`, unit.address);
       data.append(`units[${index}].observations`, unit.observations);
-      data.append(
-        `units[${index}].history_description`,
-        unit.historyDescription,
-      );
-      data.append(
-        `units[${index}].commercial_partners`,
-        unit.commercialPartners,
-      );
-      data.append(`units[${index}].partner_details`, unit.partnerDetails);
-      data.append(`units[${index}].history_profile`, unit.historyProfile);
-
-      unit.dataAttachments.forEach((file, fileIndex) => {
-        data.append(`units[${index}].data_attachments[${fileIndex}]`, file);
-      });
-      unit.contractAttachment.forEach((file, fileIndex) => {
-        data.append(`units[${index}].contract_attachment[${fileIndex}]`, file);
-      });
-      unit.schoolStructureAttachments.forEach((file, fileIndex) => {
-        data.append(
-          `units[${index}].school_structure_attachments[${fileIndex}]`,
-          file,
-        );
-      });
     });
 
     const token = localStorage.getItem('access_token');

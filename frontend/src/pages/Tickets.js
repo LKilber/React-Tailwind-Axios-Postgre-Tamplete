@@ -7,13 +7,9 @@ import { format, parseISO } from 'date-fns';
 import '../styles/Tickets.css';
 import PricingTicket from '../components/tickets/PricingTicket';
 import TicketDetailModal from '../components/tickets/TicketDetailModal';
-import {
-  fetchTickets,
-  fetchDemandTypes,
-  addNewTicket,
-} from '../services/ticketService';
+import { fetchTickets, fetchDemandTypes } from '../services/ticketService';
 
-import { Typography, Chip } from '@mui/material';
+import { Typography, Chip, Pagination } from '@mui/material';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -49,6 +45,8 @@ const Tickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [ticketDetailModalIsOpen, setTicketDetailModalIsOpen] = useState(false);
   const [ticketUpdated, setTicketUpdated] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadData = async () => {
     const token = localStorage.getItem('access_token');
@@ -89,7 +87,8 @@ const Tickets = () => {
   };
 
   const openTicketDetailModal = (ticket) => {
-    setSelectedTicket(ticket.id);
+    console.log(selectedTicket);
+    setSelectedTicket(ticket);
     setTicketDetailModalIsOpen(true);
   };
 
@@ -108,16 +107,19 @@ const Tickets = () => {
     }
   };
 
-  const addTicket = useCallback(async (ticket) => {
-    const token = localStorage.getItem('access_token');
-    try {
-      const newTicket = await addNewTicket(ticket, token);
-      setTickets((prevTickets) => [...prevTickets, newTicket]);
-      closeModal();
-    } catch (error) {
-      console.error('Error adding ticket:', error);
-    }
+  const addTicket = useCallback((newTicket) => {
+    setTickets((prevTickets) => [...prevTickets, newTicket]);
+    closeModal();
   }, []);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  const displayedTickets = tickets
+    .slice()
+    .reverse()
+    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="tickets">
@@ -175,8 +177,8 @@ const Tickets = () => {
               height={40}
             />
           ))
-        ) : tickets.length > 0 ? (
-          tickets.map((ticket) => (
+        ) : displayedTickets.length > 0 ? (
+          displayedTickets.map((ticket) => (
             <div
               key={ticket.id}
               onClick={() => openTicketDetailModal(ticket)}
@@ -219,6 +221,14 @@ const Tickets = () => {
           <Typography variant="body2">No tickets available</Typography>
         )}
       </div>
+
+      <Pagination
+        count={Math.ceil(tickets.length / itemsPerPage)}
+        page={currentPage}
+        onChange={handlePageChange}
+        color="primary"
+        style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+      />
 
       <PricingTicket
         show={modalIsOpen}
