@@ -27,5 +27,6 @@ def user_detail(request):
         'last_name': user.last_name,
         'sector': profile.sector,
         'role': profile.role,
+        'level': profile.level
     }
     return Response(user_data)

@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.19.128:8000',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.19.182:8000',
 });
 
 const handleApiError = (error) => {
@@ -19,6 +19,7 @@ const handleApiError = (error) => {
 };
 
 export const login = async (credentials) => {
+  console.log(credentials);
   try {
     const response = await api.post('/auth/login/', credentials);
     const accessToken = response.data.access;
