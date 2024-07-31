@@ -51,7 +51,7 @@ const apiService = {
 export default apiService;
 
 const api = axios.create({
-  baseURL: 'http://192.168.19.128:8000/demand',
+  baseURL: 'http://192.168.19.182:8000/demand',
   headers: {
     Authorization: `Bearer ${localStorage.getItem('access_token')}`,
   },

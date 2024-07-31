@@ -7,18 +7,25 @@ import {
   FaHome,
   FaDollarSign,
   FaChevronLeft,
-  FaChevronDown,
   FaTicketAlt,
   FaTools,
 } from 'react-icons/fa';
+import { BsPersonFillAdd } from 'react-icons/bs';
 import '../styles/SideBar.css';
 
 const SideBar = ({ isOpen, onToggle }) => {
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [isPrecificacaoSubMenuOpen, setIsPrecificacaoSubMenuOpen] =
+    useState(false);
+  const [isGerenciamentoSubMenuOpen, setIsGerenciamentoSubMenuOpen] =
+    useState(false);
   const { user } = useContext(AuthContext);
 
-  const handleSubMenuToggle = () => {
-    setIsSubMenuOpen(!isSubMenuOpen);
+  const handlePrecificacaoSubMenuToggle = () => {
+    setIsPrecificacaoSubMenuOpen(!isPrecificacaoSubMenuOpen);
+  };
+
+  const handleGerenciamentoSubMenuToggle = () => {
+    setIsGerenciamentoSubMenuOpen(!isGerenciamentoSubMenuOpen);
   };
 
   return (
@@ -36,14 +43,16 @@ const SideBar = ({ isOpen, onToggle }) => {
           <span>Tickets</span>
         </NavLink>
         <div className="sidebar__submenu">
-          <button className="submenu__toggle" onClick={handleSubMenuToggle}>
+          <button
+            className="submenu__toggle"
+            onClick={handlePrecificacaoSubMenuToggle}
+          >
             <FaDollarSign size={20} />
             <span>Precificação</span>
-            <FaChevronDown
-              className={`submenu__icon ${isSubMenuOpen ? 'open' : ''}`}
-            />
           </button>
-          <div className={`submenu__content ${isSubMenuOpen ? 'open' : ''}`}>
+          <div
+            className={`submenu__content ${isPrecificacaoSubMenuOpen ? 'open' : ''}`}
+          >
             <NavLink to="/precificacao" activeClassName="active">
               <FaDollarSign size={20} />
               <span>Precificação</span>
@@ -55,10 +64,23 @@ const SideBar = ({ isOpen, onToggle }) => {
           </div>
         </div>
         {user && user.level === 'Admin' && (
-          <NavLink to="/admin" exact activeClassName="active">
-            <FaTools size={20} />
-            <span>Admin</span>
-          </NavLink>
+          <div className="sidebar__submenu">
+            <button
+              className="submenu__toggle"
+              onClick={handleGerenciamentoSubMenuToggle}
+            >
+              <FaTools size={20} />
+              <span>Gerenciamento</span>
+            </button>
+            <div
+              className={`submenu__content ${isGerenciamentoSubMenuOpen ? 'open' : ''}`}
+            >
+              <NavLink to="/createuser" activeClassName="active">
+                <BsPersonFillAdd size={20} />
+                <span>Criar Usuário</span>
+              </NavLink>
+            </div>
+          </div>
         )}
       </nav>
     </div>

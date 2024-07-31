@@ -19,6 +19,7 @@ import Tickets from './pages/Tickets';
 import TicketDetails from './pages/TicketDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import Admin from './pages/Admin';
+import CreateUser from './pages/CreateUser';
 
 const App = () => {
   return (
@@ -93,6 +94,16 @@ const App = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Admin />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/createuser"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <CreateUser />
                 </MainLayout>
               </ProtectedRoute>
             }

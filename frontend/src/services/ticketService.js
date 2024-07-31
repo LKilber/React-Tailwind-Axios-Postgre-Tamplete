@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://192.168.19.128:8000/demand';
+const API_URL = 'http://192.168.19.182:8000/demand';
 
 export const fetchTickets = async (token) => {
   const response = await axios.get(`${API_URL}/demands/`, {

@@ -42,6 +42,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  font-size: 12px;
 }
 
 .sidebar__nav a {
@@ -97,6 +98,7 @@
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 10px; /* Add spacing below each submenu */
 }
 
 .submenu__toggle {
@@ -106,13 +108,12 @@
   align-items: center;
   width: 100%;
   padding: 10px 20px;
-  color: #fff;
+  color: #e0e0e0; /* Lighter color for submenu toggle */
   text-decoration: none;
   border-radius: 8px;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
-  margin-bottom: 10px;
   cursor: pointer;
   position: relative;
 }
@@ -191,11 +192,11 @@
 .submenu__icon {
   margin-left: auto;
   transition: transform 0.3s ease;
-  color: #fff; /* Set icon color to white */
+  color: #e0e0e0; /* Set icon color to lighter for submenu */
 }
 
 .submenu__icon.open {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 @media (max-width: 768px) {
