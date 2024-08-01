@@ -5,6 +5,7 @@ import useFetchSchoolGroups from '../../hooks/useFetchSchoolGroups';
 import CustomTextField from '../CustomTextField';
 import AttachmentDropzone from '../AttachmentDropzone';
 import apiService from '../../services/apiService';
+import CustomSwitch from '../StyledSwitch';
 
 import {
   Modal,
@@ -13,9 +14,6 @@ import {
   Box,
   Button,
   FormControl,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
   InputLabel,
   MenuItem,
   Select,
@@ -34,7 +32,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
   const [formData, setFormData] = useState({
     group: '',
     unitQuantity: 0,
-    pricingType: '',
+    groupedPricing: '',
     selectedGroup: '',
     partnerConfirmation: '',
     attachments: [],
@@ -58,6 +56,9 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
 
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;
+
+    console.log(e.target);
+
     if (typeof index === 'number') {
       const updatedUnits = [...formData.units];
       updatedUnits[index][name] = value;
@@ -98,12 +99,20 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     }));
   };
 
+  const handleSwitchChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: checked.toString(), // Convert to string if your data structure expects string
+    }));
+  };
+
   const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 700, // Largura fixa
+    width: '80vw', // Largura fixa
     height: '95vh', // Altura fixa
     bgcolor: 'background.paper',
     boxShadow: 24,
@@ -127,117 +136,129 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     >
       <Fade in={show}>
         <Box sx={style}>
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid item xs={12}>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <FormControl component="fieldset" fullWidth margin="normal">
-                    <Typography component="legend" variant="body2">
-                      Grupo Educacional?
-                    </Typography>
-                    <RadioGroup
-                      name="group"
-                      value={formData.group}
-                      onChange={(e) => handleInputChange(e)}
-                    >
-                      <FormControlLabel
-                        value="true"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={<Typography variant="body2">Sim</Typography>}
-                      />
-                      <FormControlLabel
-                        value="false"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={<Typography variant="body2">Não</Typography>}
-                      />
-                    </RadioGroup>
-                  </FormControl>
+              <Grid container spacing={2} alignItems="center">
+                {/* Switches Section */}
+                <Grid item xs={3}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormControl
+                        component="fieldset"
+                        fullWidth
+                        margin="normal"
+                      >
+                        <Grid container alignItems="center" spacing={1}>
+                          <Grid item>
+                            <Typography component="legend" variant="body2">
+                              Grupo Educacional?
+                            </Typography>
+                          </Grid>
+                          <Grid item>
+                            <CustomSwitch
+                              name="group"
+                              checked={formData.group === 'true'}
+                              onChange={handleSwitchChange}
+                              color="primary"
+                            />
+                          </Grid>
+                        </Grid>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormControl
+                        component="fieldset"
+                        fullWidth
+                        margin="normal"
+                      >
+                        <Grid container alignItems="center" spacing={1}>
+                          <Grid item>
+                            <Typography component="legend" variant="body2">
+                              Precificação Agrupada?
+                            </Typography>
+                          </Grid>
+                          <Grid item>
+                            <CustomSwitch
+                              name="groupedPricing"
+                              value={formData.groupedPricing}
+                              onChange={(e) => handleInputChange(e)}
+                            />
+                          </Grid>
+                        </Grid>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormControl
+                        component="fieldset"
+                        fullWidth
+                        margin="normal"
+                      >
+                        <Grid container alignItems="center" spacing={1}>
+                          <Grid item>
+                            <Typography component="legend" variant="body2">
+                              Confirmação com Parceiros?
+                            </Typography>
+                          </Grid>
+                          <Grid item>
+                            <CustomSwitch
+                              name="partnerConfirmation"
+                              value={formData.partnerConfirmation}
+                              onChange={(e) => handleInputChange(e)}
+                            />
+                          </Grid>
+                        </Grid>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                  <FormControl component="fieldset" fullWidth margin="normal">
-                    <Typography component="legend" variant="body2">
-                      Tipo de Precificação:
-                    </Typography>
-                    <RadioGroup
-                      name="pricingType"
-                      value={formData.pricingType}
-                      onChange={(e) => handleInputChange(e)}
-                    >
-                      <FormControlLabel
-                        value="Agrupada"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={
-                          <Typography variant="body2">Taxa Agrupada</Typography>
-                        }
-                      />
-                      <FormControlLabel
-                        value="Por Unidade"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={
-                          <Typography variant="body2">
-                            Taxa Por Unidade
-                          </Typography>
-                        }
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={4}>
-                  <FormControl component="fieldset" fullWidth margin="normal">
-                    <Typography component="legend" variant="body2">
-                      Confirmação com Parceiros?
-                    </Typography>
-                    <RadioGroup
-                      name="partnerConfirmation"
-                      value={formData.partnerConfirmation}
-                      onChange={(e) => handleInputChange(e)}
-                    >
-                      <FormControlLabel
-                        value="true"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={<Typography variant="body2">Sim</Typography>}
-                      />
-                      <FormControlLabel
-                        value="false"
-                        control={<Radio sx={{ transform: 'scale(0.8)' }} />}
-                        label={<Typography variant="body2">Não</Typography>}
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Grid>
 
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
-                  margin="normal"
-                  disabled={formData.group !== 'true'}
-                >
-                  <InputLabel>Selecione Grupo</InputLabel>
-                  <Select
-                    name="selectedGroup"
-                    value={formData.selectedGroup}
-                    onChange={(e) => handleInputChange(e)}
-                  >
-                    {groups.map((group) => (
-                      <MenuItem key={group.id} value={group.id}>
-                        {group.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+                {/* Unit Quantity and Selected Group Section */}
+                <Grid item xs={3}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormControl
+                        fullWidth
+                        margin="normal"
+                        disabled={formData.group !== 'true'}
+                      >
+                        <InputLabel>Selecione Grupo</InputLabel>
+                        <Select
+                          name="selectedGroup"
+                          value={formData.selectedGroup}
+                          onChange={(e) => handleInputChange(e)}
+                        >
+                          {groups.map((group) => (
+                            <MenuItem key={group.id} value={group.id}>
+                              {group.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <CustomTextField
+                        label="Quantidade de unidades que serão precificadas"
+                        type="number"
+                        name="unitQuantity"
+                        value={formData.unitQuantity}
+                        onChange={(e) => handleInputChange(e)}
+                        fullWidth
+                        margin="normal"
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <CustomTextField
-                  label="Quantidade de unidades que serão precificadas"
-                  type="number"
-                  name="unitQuantity"
-                  value={formData.unitQuantity}
-                  onChange={(e) => handleInputChange(e)}
-                />
+                {/* Dropzone Section */}
+                <Grid item xs={6}>
+                  <AttachmentDropzone
+                    name="attachments"
+                    label="Anexos"
+                    formData={formData}
+                    onDrop={onDrop}
+                    onRemove={onRemove}
+                  />
+                </Grid>
               </Grid>
             </Grid>
 
@@ -314,16 +335,6 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 </AccordionDetails>
               </Accordion>
             ))}
-
-            <Grid item xs={12}>
-              <AttachmentDropzone
-                name="attachments"
-                label="Anexos"
-                formData={formData}
-                onDrop={onDrop}
-                onRemove={onRemove}
-              />
-            </Grid>
 
             <Grid item xs={12} textAlign="center">
               <Button

@@ -1,25 +1,30 @@
 // src/layouts/MainLayout.js
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import Footer from '../components/Footer';
-import SideBar from '../components/SideBar';
 import NavBar from '../components/NavBar';
+import SideBar from '../components/SideBar'; // Import Sidebar component
+import '../styles/MainLayout.css';
 
 const MainLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleSidebarToggle = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  const toggleDrawer = (open) => () => {
+    setIsSidebarOpen(open);
   };
 
   return (
-    <div className={`main-layout ${isSidebarOpen ? 'sidebar-open' : ''}`}>
-      <NavBar />
-      <SideBar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-      <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : ''}`}>
-        <main className="content">{children}</main>
-        <Footer />
-      </div>
+    <div className="main-layout">
+      <NavBar toggleDrawer={toggleDrawer} />
+      <SideBar
+        open={isSidebarOpen}
+        toggleDrawer={toggleDrawer}
+        handleLogout={() => {}}
+      />
+      <main
+        className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
+      >
+        <div className="content">{children}</div>
+      </main>
     </div>
   );
 };

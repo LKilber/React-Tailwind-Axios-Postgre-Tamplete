@@ -1,5 +1,6 @@
+// src/components/CreateUser.js
+
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -10,6 +11,7 @@ import {
   Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { createUser } from '../services/userService'; // Import the service
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -43,22 +45,14 @@ const CreateUser = () => {
     setError('');
 
     try {
-      const response = await axios.post(
-        'http://192.168.19.182:8000/user/create-user/',
-        {
-          username,
-          email,
-          password,
-          sector,
-          role,
-          level,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-        },
-      );
+      const response = await createUser({
+        username,
+        email,
+        password,
+        sector,
+        role,
+        level,
+      });
 
       if (response.status === 201) {
         navigate('/users'); // Redirect to the users list or another page

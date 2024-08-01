@@ -1,17 +1,18 @@
 // hooks/useAuth.js
 
-import { useContext, useState, useEffect } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useState, useEffect, useCallback } from 'react';
 import {
   login as loginService,
   logout as logoutService,
+  isAuthenticated,
 } from '../services/authService';
+import Cookies from 'js-cookie';
 
 const useAuth = () => {
-  const { user, setUser } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     setLoading(true);
     try {
       const { user } = await loginService(credentials);
@@ -22,25 +23,28 @@ const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     logoutService();
     setUser(null);
-  };
+  }, []);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedUser = Cookies.get('user');
+    const accessToken = Cookies.get('access_token');
+
+    if (storedUser && accessToken && isAuthenticated()) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
       } catch (err) {
-        console.error('Failed to parse user from localStorage:', err);
+        console.error('Failed to parse user from Cookies:', err);
         logoutService(); // Clear possibly corrupted data
       }
     }
-  }, [setUser]);
+    setLoading(false);
+  }, []);
 
   return { user, loading, login, logout };
 };

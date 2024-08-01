@@ -1,22 +1,16 @@
 // contexts/AuthContext.js
-import React, { createContext, useState } from 'react';
+
+import React, { createContext } from 'react';
 import PropTypes from 'prop-types';
+import useAuth from '../hooks/useAuth';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    try {
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (error) {
-      console.error('Failed to parse user from localStorage:', error);
-      return null;
-    }
-  });
+  const { user, setUser, login, logout, loading } = useAuth();
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

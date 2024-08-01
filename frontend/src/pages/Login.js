@@ -1,3 +1,5 @@
+// pages/Login.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
@@ -20,21 +22,19 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, loading } = useAuth(); // Usando loading do useAuth hook
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
     try {
       await login({ username, password });
       navigate('/home');
     } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+      setError(
+        'Login falhou. Verifique seu nome de usuário e senha e tente novamente.',
+      );
     }
   };
 
@@ -150,21 +150,12 @@ const Login = () => {
                       },
                     }}
                   >
-                    Login
+                    {loading ? (
+                      <CircularProgress size={24} sx={{ color: '#ffffff' }} />
+                    ) : (
+                      'Login'
+                    )}
                   </Button>
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      sx={{
-                        color: '#ffffff', // Spinner color
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        marginTop: '-12px',
-                        marginLeft: '-12px',
-                      }}
-                    />
-                  )}
                 </Box>
               </Box>
             </Box>

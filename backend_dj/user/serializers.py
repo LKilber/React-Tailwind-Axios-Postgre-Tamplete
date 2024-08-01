@@ -8,22 +8,25 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['sector', 'role', 'level']
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
+    profile = ProfileSerializer(required=False)  # Make profile optional
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'profile']
+        fields = ['id', 'username', 'email', 'profile', 'first_name', 'last_name', 'is_active']
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('profile')
-        profile = instance.profile
+        profile_data = validated_data.pop('profile', None)  # Safely pop profile data
 
-        instance.username = validated_data.get('username', instance.username)
-        instance.email = validated_data.get('email', instance.email)
+        # Update user fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
 
-        profile.sector = profile_data.get('sector', profile.sector)
-        profile.role = profile_data.get('role', profile.role)
-        profile.save()
+        # Update profile fields only if provided
+        if profile_data:
+            profile, created = Profile.objects.get_or_create(user=instance)
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
 
         return instance

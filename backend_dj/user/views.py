@@ -43,6 +43,8 @@ class CreateUserViewSet(viewsets.ViewSet):
             user = User.objects.create(
                 username=data['username'],
                 email=data['email'],
+                first_name=data['firstName'],
+                last_name=data['lastName'],
                 password=make_password(data['password'])
             )
             Profile.objects.update_or_create(

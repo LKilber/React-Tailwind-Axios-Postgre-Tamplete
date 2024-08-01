@@ -13,13 +13,10 @@ import './styles/MainLayout.css';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Implantation from './pages/Implantation';
-import Pricing from './pages/Pricing';
-import ViewPricing from './pages/ViewPricing';
 import Tickets from './pages/Tickets';
-import TicketDetails from './pages/TicketDetails';
 import ProtectedRoute from './components/ProtectedRoute';
-import Admin from './pages/Admin';
 import CreateUser from './pages/CreateUser';
+import Users from './pages/Users';
 
 const App = () => {
   return (
@@ -49,26 +46,6 @@ const App = () => {
             }
           />
           <Route
-            path="/precificacao"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Pricing />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/viewpricing"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <ViewPricing />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/tickets"
             element={
               <ProtectedRoute>
@@ -79,31 +56,21 @@ const App = () => {
             }
           />
           <Route
-            path="/tickets/:id"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <TicketDetails />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Admin />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/createuser"
             element={
               <ProtectedRoute>
                 <MainLayout>
                   <CreateUser />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Users />
                 </MainLayout>
               </ProtectedRoute>
             }

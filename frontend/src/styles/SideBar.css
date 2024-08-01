@@ -1,206 +1,128 @@
-/* src/styles/SideBar.css */
-.sidebar__toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  color: #fff; /* Set icon color to white */
-  transition: background-color 0.3s ease;
-  margin: 20px 0;
+/* SideBar.css */
+
+/* Style for the drawer */
+.MuiDrawer-paper {
+  width: 280px;
+  background: linear-gradient(
+    145deg,
+    #f7f9fc,
+    #e3e8ee
+  ); /* Light gradient background */
+  color: #333333; /* Darker text color for contrast */
+  transition:
+    transform 0.3s ease-in-out,
+    background-color 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Lighter shadow for softer effect */
+  border-right: 1px solid rgba(0, 0, 0, 0.1); /* Light border */
+  border-radius: 0 15px 15px 0;
+}
+
+/* Header for the sidebar with close button */
+.Sidebar-header {
   display: flex;
+  justify-content: flex-end;
+  padding: 10px; /* Padding around the close button */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Divider line */
+}
+
+/* Close button style */
+.CloseButton {
+  color: #333333; /* Darker icon color for visibility */
+  background-color: transparent;
+}
+
+.CloseButton:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Light hover effect */
+}
+
+/* List items within the drawer */
+.MuiList-root {
+  padding: 0; /* Remove default padding */
+}
+
+/* Icons in list items */
+.MuiListItem-icon {
+  margin-right: 12px; /* Adjust margin to better align icons */
+  font-size: 20px;
+  color: #607d8b; /* Lighter icon color */
+  transition: color 0.2s ease;
+}
+
+/* Root List Item */
+.MuiListItem-root {
+  padding: 15px 20px; /* Adjust padding for better alignment */
+  display: flex;
+  align-items: center;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.MuiListItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Light hover effect */
+}
+
+.MuiListItem-root:hover .MuiListItemText-primary {
+  color: #333333; /* Darker text color on hover */
+}
+
+.MuiListItem-root:hover .MuiListItem-icon {
+  color: #333333; /* Darker icon color on hover */
+}
+
+/* Text within list items */
+.MuiListItemText-primary {
+  font-size: 18px;
+  font-weight: 500;
+  color: #455a64; /* Lighter text color */
+  transition: color 0.2s ease;
+}
+
+/* Submenu Items */
+.MuiListItem-child {
+  padding-left: 50px; /* Adjust padding to align with main menu text */
+  display: flex;
+  align-items: center;
+}
+
+.MuiListItemIcon-dot {
+  min-width: 16px; /* Adjust width for better alignment */
+  display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
 }
 
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-  padding: 10px;
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition:
-    width 0.3s ease,
-    background 0.3s ease;
-  border-radius: 0px;
-  width: 80px; /* Initial width */
-  position: fixed; /* Fixed position to overlay on top */
-  top: 0;
-  left: 0;
-  z-index: 100;
-  height: 100%;
-  overflow: hidden;
+.DotIcon {
+  color: #607d8b; /* Color of the dot */
+  margin-right: 4px; /* Reduce space between the dot and text */
+  font-size: 8px; /* Adjust size for better alignment */
+  display: inline-block;
+  vertical-align: middle; /* Align dot vertically with text */
+  transition: color 0.2s ease; /* Ensure smooth transition for color change */
 }
 
-.sidebar.open {
-  width: 200px;
+.MuiListItem-root:hover .DotIcon {
+  color: #333333; /* Change dot color on hover */
 }
 
-.sidebar__nav {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  font-size: 12px;
+/* Optional: Style for active list item */
+.Mui-selected {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.05
+  ) !important; /* Light active item color */
+  border-left: 4px solid #03a9f4; /* Light blue indicator for the active item */
 }
 
-.sidebar__nav a {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 10px 20px;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 8px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  margin-bottom: 10px; /* Add margin to increase spacing */
-  position: relative; /* Make the container relative for absolute positioning of text */
+.Mui-selected .DotIcon {
+  color: #333333; /* Dot color when item is selected */
 }
 
-.sidebar__nav a:hover {
-  background-color: #d1d9e6;
-  color: #000;
-}
-
-.sidebar__nav a.active {
-  background-color: #b0bec5; /* Color when item is active */
-}
-
-.sidebar__nav a span {
-  margin-left: 10px;
-  white-space: nowrap;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  position: absolute;
-  left: 40px;
-}
-
-.sidebar.open .sidebar__nav a span {
-  visibility: visible;
-  opacity: 1;
-}
-
-.sidebar__nav a .fa {
-  color: #fff; /* Set icon color to white */
-  background: none; /* Remove background */
-  width: 20px; /* Ensure icons have a fixed width */
-  height: 20px; /* Ensure icons have a fixed height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.sidebar__submenu {
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 10px; /* Add spacing below each submenu */
-}
-
-.submenu__toggle {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 10px 20px;
-  color: #e0e0e0; /* Lighter color for submenu toggle */
-  text-decoration: none;
-  border-radius: 8px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  cursor: pointer;
-  position: relative;
-}
-
-.submenu__toggle:hover {
-  background-color: #d1d9e6;
-  color: #000;
-}
-
-.submenu__toggle span {
-  margin-left: 10px;
-  white-space: nowrap; /* Prevent text wrapping */
-  visibility: hidden; /* Hide text initially */
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  position: absolute; /* Absolute positioning to avoid pushing icons */
-  left: 40px; /* Adjust to position the text next to the icons */
-}
-
-.sidebar.open .submenu__toggle span {
-  visibility: visible;
-  opacity: 1;
-}
-
-.submenu__content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  max-height: 0;
-  opacity: 0;
-  transition:
-    max-height 0.6s ease,
-    opacity 0.2s ease;
-}
-
-.submenu__content.open {
-  max-height: 200px; /* Adjust this to fit your content */
-  opacity: 1;
-}
-
-.submenu__content a {
-  display: flex; /* Ensure the link is flex to align items properly */
-  align-items: center; /* Center items vertically */
-  width: 100%;
-  padding: 10px 20px;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  margin-bottom: 0;
-}
-
-.submenu__content a:hover {
-  background-color: #e0e0e0;
-  color: #000;
-}
-
-.submenu__content a span {
-  margin-left: 10px;
-  white-space: nowrap;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  position: absolute;
-  left: 40px;
-}
-
-.sidebar.open .submenu__content a span {
-  visibility: visible;
-  opacity: 1;
-}
-
-.submenu__icon {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-  color: #e0e0e0; /* Set icon color to lighter for submenu */
-}
-
-.submenu__icon.open {
-  transform: rotate(90deg);
-}
-
-@media (max-width: 768px) {
-  .sidebar.open {
-    width: 150px;
+/* Media query for responsive design */
+@media (max-width: 600px) {
+  .MuiDrawer-paper {
+    width: 240px; /* Smaller width on small screens */
   }
 }
