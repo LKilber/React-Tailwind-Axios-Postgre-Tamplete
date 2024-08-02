@@ -3,8 +3,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  background-color: #f8f8f8;
+  background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure this is higher than the sidebar */
+  position: fixed; /* Fix the navbar at the top */
+  top: 0; /* Align to the top of the page */
+  width: 100%; /* Full width of the page */
 }
 
 .navbar__logo {

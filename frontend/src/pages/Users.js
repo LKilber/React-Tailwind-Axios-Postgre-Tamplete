@@ -1,16 +1,11 @@
 // src/pages/Users.js
 
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  CircularProgress,
-  Box,
-  Alert,
-  Button,
-} from '@mui/material';
+import { Typography, CircularProgress, Box, Alert } from '@mui/material';
 import { fetchAllUsers, updateUserStatus } from '../services/userService'; // Import the service
 import CreateUserModal from '../components/CreateUserModal'; // Import the new component
 import CustomSwitch from '../components/StyledSwitch'; // Import the styled switch
+import CustomButton from '../components/StyledButton';
 import '../styles/Users.css'; // Import the CSS file
 
 const Users = () => {
@@ -65,14 +60,15 @@ const Users = () => {
     fetchUsers();
   };
 
+  const items = [
+    { label: 'Adicionar Usuário', onClick: () => handleOpenModal() },
+    { label: 'Item 2', onClick: () => alert('Item 2 clicked') },
+    { label: 'Item 3', onClick: () => alert('Item 3 clicked') },
+  ];
+
   return (
-    <Box sx={{ padding: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Usuários
-      </Typography>
-      <Button variant="contained" color="primary" onClick={handleOpenModal}>
-        Adicionar Responsável
-      </Button>
+    <Box>
+      <CustomButton items={items} />
       {loading ? (
         <Box
           display="flex"

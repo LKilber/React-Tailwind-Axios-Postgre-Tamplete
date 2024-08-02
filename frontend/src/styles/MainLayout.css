@@ -12,14 +12,8 @@
   flex-grow: 1;
   overflow: hidden;
   transition: margin-left 0.3s ease; /* Smooth transition for layout shift */
-}
-
-.main-content.sidebar-open {
-  margin-left: 250px; /* Adjust to the sidebar width when open */
-}
-
-.main-content.sidebar-closed {
-  margin-left: 0; /* No margin when the sidebar is closed */
+  margin-left: 30px;
+  margin-top: 50px;
 }
 
 .main-content .content {

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import useAuth from '../../hooks/useAuth';
 import useFetchSchoolGroups from '../../hooks/useFetchSchoolGroups';
 import CustomTextField from '../CustomTextField';
+import CustomSelectField from '../CustomSelectField';
 import AttachmentDropzone from '../AttachmentDropzone';
 import apiService from '../../services/apiService';
 import CustomSwitch from '../StyledSwitch';
@@ -12,18 +13,20 @@ import {
   Backdrop,
   Fade,
   Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
   Grid,
+  Typography,
+  FormControl,
+  MenuItem,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Button,
+  AppBar,
+  Toolbar,
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CloseIcon from '@mui/icons-material/Close';
 
 const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
   const { user } = useAuth();
@@ -115,8 +118,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     width: '80vw', // Largura fixa
     height: '95vh', // Altura fixa
     bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
+    boxShadow: 12,
     borderRadius: '12px',
     outline: 'none',
     display: 'flex',
@@ -124,6 +126,18 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     overflow: 'auto',
   };
 
+  const NavbarStyle = {
+    backgroundColor: '#F5F5F5', // Light gray color
+    color: '#333',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0 8px',
+    borderTopLeftRadius: '8px',
+    borderTopRightRadius: '8px',
+    height: '56px', // Height to align properly
+    boxShadow: 'none', // Remove shadow
+  };
   return (
     <Modal
       open={show}
@@ -136,127 +150,67 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     >
       <Fade in={show}>
         <Box sx={style}>
-          <Grid container spacing={1}>
+          {/* Barra de navegação superior com botão de fechamento */}
+          <AppBar position="static" sx={NavbarStyle}>
+            <Toolbar variant="dense" sx={{ width: '100%', p: 0 }}>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Detalhes do Modal
+              </Typography>
+              <IconButton edge="end" color="inherit" onClick={handleClose}>
+                <CloseIcon />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+
+          {/* Conteúdo do Modal */}
+          <Grid container spacing={1} sx={{ marginTop: 1 }}>
             <Grid item xs={12}>
               <Grid container spacing={2} alignItems="center">
-                {/* Switches Section */}
-                <Grid item xs={3}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <FormControl
-                        component="fieldset"
-                        fullWidth
-                        margin="normal"
-                      >
-                        <Grid container alignItems="center" spacing={1}>
-                          <Grid item>
-                            <Typography component="legend" variant="body2">
-                              Grupo Educacional?
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <CustomSwitch
-                              name="group"
-                              checked={formData.group === 'true'}
-                              onChange={handleSwitchChange}
-                              color="primary"
-                            />
-                          </Grid>
-                        </Grid>
-                      </FormControl>
+                <Grid item xs={4}>
+                  <FormControl component="fieldset" fullWidth margin="normal">
+                    <Grid container alignItems="center" spacing={1}>
+                      <Grid item>
+                        <Typography component="legend" variant="body2">
+                          Precificação Agrupada?
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <CustomSwitch
+                          name="groupedPricing"
+                          value={formData.groupedPricing}
+                          onChange={handleSwitchChange}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                      <FormControl
-                        component="fieldset"
-                        fullWidth
-                        margin="normal"
-                      >
-                        <Grid container alignItems="center" spacing={1}>
-                          <Grid item>
-                            <Typography component="legend" variant="body2">
-                              Precificação Agrupada?
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <CustomSwitch
-                              name="groupedPricing"
-                              value={formData.groupedPricing}
-                              onChange={(e) => handleInputChange(e)}
-                            />
-                          </Grid>
-                        </Grid>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormControl
-                        component="fieldset"
-                        fullWidth
-                        margin="normal"
-                      >
-                        <Grid container alignItems="center" spacing={1}>
-                          <Grid item>
-                            <Typography component="legend" variant="body2">
-                              Confirmação com Parceiros?
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <CustomSwitch
-                              name="partnerConfirmation"
-                              value={formData.partnerConfirmation}
-                              onChange={(e) => handleInputChange(e)}
-                            />
-                          </Grid>
-                        </Grid>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
+                  </FormControl>
                 </Grid>
 
-                {/* Unit Quantity and Selected Group Section */}
-                <Grid item xs={3}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <FormControl
-                        fullWidth
-                        margin="normal"
-                        disabled={formData.group !== 'true'}
-                      >
-                        <InputLabel>Selecione Grupo</InputLabel>
-                        <Select
-                          name="selectedGroup"
-                          value={formData.selectedGroup}
-                          onChange={(e) => handleInputChange(e)}
-                        >
-                          {groups.map((group) => (
-                            <MenuItem key={group.id} value={group.id}>
-                              {group.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <CustomTextField
-                        label="Quantidade de unidades que serão precificadas"
-                        type="number"
-                        name="unitQuantity"
-                        value={formData.unitQuantity}
-                        onChange={(e) => handleInputChange(e)}
-                        fullWidth
-                        margin="normal"
-                      />
-                    </Grid>
-                  </Grid>
+                <Grid item xs={4}>
+                  <CustomSelectField
+                    label="Grupo Educacional:"
+                    name="selectedGroup"
+                    value={formData.selectedGroup}
+                    onChange={(e) => handleInputChange(e)}
+                    fullWidth
+                    margin="normal"
+                  >
+                    {groups.map((group) => (
+                      <MenuItem key={group.id} value={group.id}>
+                        {group.name}
+                      </MenuItem>
+                    ))}
+                  </CustomSelectField>
                 </Grid>
 
-                {/* Dropzone Section */}
-                <Grid item xs={6}>
-                  <AttachmentDropzone
-                    name="attachments"
-                    label="Anexos"
-                    formData={formData}
-                    onDrop={onDrop}
-                    onRemove={onRemove}
+                <Grid item xs={4}>
+                  <CustomTextField
+                    label="Quantidade de Unidades:"
+                    type="number"
+                    name="unitQuantity"
+                    value={formData.unitQuantity}
+                    onChange={(e) => handleInputChange(e)}
+                    fullWidth
+                    margin="normal"
                   />
                 </Grid>
               </Grid>
@@ -335,6 +289,16 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 </AccordionDetails>
               </Accordion>
             ))}
+
+            <Grid item xs={6}>
+              <AttachmentDropzone
+                name="attachments"
+                label="Anexos"
+                formData={formData}
+                onDrop={onDrop}
+                onRemove={onRemove}
+              />
+            </Grid>
 
             <Grid item xs={12} textAlign="center">
               <Button

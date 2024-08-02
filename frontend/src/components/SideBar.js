@@ -1,166 +1,192 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+  Box,
   Drawer,
   List,
   ListItem,
-  ListItemText,
   ListItemIcon,
+  ListItemText,
   Collapse,
-  IconButton,
-  Tooltip,
+  CssBaseline,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import {
+  Home,
+  Assessment as AssessmentIcon,
+  Settings as SettingsIcon,
+  ChevronRight,
+  ChevronLeft,
   ExpandLess,
   ExpandMore,
-  Close,
-  Home as HomeIcon,
-  Assessment as AssessmentIcon,
-  ManageAccounts as ManageAccountsIcon,
-  Settings as SettingsIcon,
-  FiberManualRecord as DotIcon, // Import Dot Icon
-} from '@mui/icons-material'; // Import additional icons
-import '../styles/SideBar.css'; // Import the CSS
+  Assignment,
+} from '@mui/icons-material';
+import { styled } from '@mui/system';
 
-const Sidebar = ({ open, toggleDrawer }) => {
+const drawerWidth = 240;
+const miniDrawerWidth = 32;
+
+const SidebarContainer = styled(Box)({
+  display: 'flex',
+  zIndex: 900, // Add this line to set the z-index of the Sidebar
+});
+
+const MiniDrawer = styled(Drawer)({
+  width: miniDrawerWidth,
+  flexShrink: 0,
+  '& .MuiDrawer-paper': {
+    width: miniDrawerWidth,
+    overflowX: 'hidden',
+    transition: 'width 0.5s, background-color 0.5s', // Smooth width transition
+    overflow: 'visible', // Ensure overflow is visible
+    backgroundColor: '#fff', // Altera a cor de fundo da sidebar
+  },
+  '&:hover .MuiDrawer-paper': {
+    width: drawerWidth,
+    transition: 'width 0.5s, background-color 0.5s', // Smooth width transition
+  },
+  position: 'relative', // Enable positioning for the circle
+});
+
+const CircleWithArrow = styled(Box)({
+  width: '24px', // Circle size
+  height: '24px',
+  borderRadius: '50%',
+  backgroundColor: 'white',
+  border: '1px solid #ccc', // Border color of the circle
+  display: 'flex',
+  position: 'absolute',
+  left: '100%', // Position the circle outside the drawer
+  top: '15%', // Adjust this value to move the circle upwards
+  transform: 'translate(-50%, -50%)', // Centering the circle horizontally
+  zIndex: 900, // Ensure it appears above other elements
+  alignItems: 'center', // Center the arrow inside the circle
+  justifyContent: 'center', // Center the arrow inside the circle
+});
+
+const ListItemWithTransition = styled(ListItem)({
+  transition: 'padding 0.3s, color 0.3s', // Smooth item transition
+});
+
+const ListItemTextWithTransition = styled(ListItemText)({
+  transition: 'opacity 0.3s', // Smooth text transition
+  opacity: 1, // Default opacity for visible text
+});
+
+const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [openAnalysis, setOpenAnalysis] = useState(false);
+  const [openManagement, setOpenManagement] = useState(false);
   const navigate = useNavigate();
-  const [submenuState, setSubmenuState] = useState({
-    analises: false,
-    gerenciamento: false,
-  });
-
-  const handleSubmenuClick = (submenu) => {
-    setSubmenuState((prevState) => ({
-      ...prevState,
-      [submenu]: !prevState[submenu],
-    }));
-  };
 
   return (
-    <Drawer
-      anchor="left"
-      open={open}
-      onClose={toggleDrawer(false)}
-      classes={{ paper: 'MuiDrawer-paper' }} // Add custom class
-    >
-      {/* Close Button */}
-      <div className="Sidebar-header">
-        <Tooltip title="Close">
-          <IconButton onClick={toggleDrawer(false)} className="CloseButton">
-            <Close />
-          </IconButton>
-        </Tooltip>
-      </div>
-
-      <List className="MuiList-root">
-        <ListItem
-          button
-          onClick={() => navigate('/home')}
-          className="MuiListItem-root"
-        >
-          <HomeIcon className="MuiListItem-icon" />
-          <ListItemText primary="Home" className="MuiListItemText-primary" />
-        </ListItem>
-
-        {/* Análises Submenu */}
-        <ListItem
-          button
-          onClick={() => handleSubmenuClick('analises')}
-          className="MuiListItem-root"
-        >
-          <AssessmentIcon className="MuiListItem-icon" />
-          <ListItemText
-            primary="Análises"
-            className="MuiListItemText-primary"
-          />
-          {submenuState.analises ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        <Collapse in={submenuState.analises} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItem
+    <SidebarContainer>
+      <CssBaseline />
+      <MiniDrawer
+        variant="permanent"
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: isOpen ? drawerWidth : miniDrawerWidth,
+          },
+        }}
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => {
+          setIsOpen(false);
+          setOpenAnalysis(false);
+          setOpenManagement(false);
+        }}
+      >
+        <CircleWithArrow>
+          {isOpen ? (
+            <ChevronLeft fontSize="small" />
+          ) : (
+            <ChevronRight fontSize="small" />
+          )}
+        </CircleWithArrow>
+        {isOpen ? (
+          <List sx={{ marginTop: 10 }}>
+            <ListItemWithTransition
               button
-              onClick={() => navigate('/profile/overview')}
-              className="MuiListItem-root MuiListItem-child"
+              key="Home"
+              onClick={() => navigate('/home')} // Wrap navigate call in an arrow function
             >
-              <ListItemIcon className="MuiListItemIcon-dot">
-                <DotIcon style={{ fontSize: 8 }} className="DotIcon" />{' '}
-                {/* Set smaller size here */}
+              <ListItemIcon>
+                <Home />
               </ListItemIcon>
-              <ListItemText
-                primary="Precificação"
-                className="MuiListItemText-primary"
-              />
-            </ListItem>
-            <ListItem
+              <ListItemTextWithTransition primary="Home" />
+            </ListItemWithTransition>
+
+            <ListItemWithTransition
               button
-              onClick={() => navigate('/profile/settings')}
-              className="MuiListItem-root MuiListItem-child"
+              key="Demandas"
+              onClick={() => navigate('/tickets')} // Wrap navigate call in an arrow function
             >
-              <ListItemIcon className="MuiListItemIcon-dot">
-                <DotIcon style={{ fontSize: 8 }} className="DotIcon" />{' '}
-                {/* Set smaller size here */}
+              <ListItemIcon>
+                <Assignment />
               </ListItemIcon>
-              <ListItemText
-                primary="Reprecificação"
-                className="MuiListItemText-primary"
-              />
-            </ListItem>
+              <ListItemTextWithTransition primary="Demandas" />
+            </ListItemWithTransition>
+
+            <ListItemWithTransition
+              button
+              onMouseEnter={() => setOpenAnalysis(true)}
+              onMouseLeave={() => setOpenAnalysis(false)}
+            >
+              <ListItemIcon>
+                <AssessmentIcon />
+              </ListItemIcon>
+              <ListItemTextWithTransition primary="Análises" />
+              {openAnalysis ? <ExpandLess /> : <ExpandMore />}
+            </ListItemWithTransition>
+            <Collapse in={openAnalysis} timeout="auto" unmountOnExit>
+              <List
+                component="div"
+                disablePadding
+                onMouseEnter={() => setOpenAnalysis(true)} // Keep open on hover
+                onMouseLeave={() => setOpenAnalysis(false)} // Close when leaving
+              >
+                <ListItemWithTransition button sx={{ pl: 4 }}>
+                  <ListItemTextWithTransition primary="Precificação" />
+                </ListItemWithTransition>
+                <ListItemWithTransition button sx={{ pl: 4 }}>
+                  <ListItemTextWithTransition primary="Reprecificação" />
+                </ListItemWithTransition>
+              </List>
+            </Collapse>
+            <ListItemWithTransition
+              button
+              onMouseEnter={() => setOpenManagement(true)}
+              onMouseLeave={() => setOpenManagement(false)}
+            >
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemTextWithTransition primary="Gerenciamento" />
+              {openManagement ? <ExpandLess /> : <ExpandMore />}
+            </ListItemWithTransition>
+            <Collapse in={openManagement} timeout="auto" unmountOnExit>
+              <List
+                component="div"
+                disablePadding
+                onMouseEnter={() => setOpenManagement(true)} // Keep open on hover
+                onMouseLeave={() => setOpenManagement(false)} // Close when leaving
+              >
+                <ListItemWithTransition
+                  button
+                  sx={{ pl: 4 }}
+                  onClick={() => navigate('/admin/users')}
+                >
+                  <ListItemTextWithTransition primary="Usuários" />
+                </ListItemWithTransition>
+                <ListItemWithTransition button sx={{ pl: 4 }}>
+                  <ListItemTextWithTransition primary="Sistema" />
+                </ListItemWithTransition>
+              </List>
+            </Collapse>
           </List>
-        </Collapse>
-
-        <ListItem
-          button
-          onClick={() => navigate('/tickets')}
-          className="MuiListItem-root"
-        >
-          <SettingsIcon className="MuiListItem-icon" />
-          <ListItemText
-            primary="Demandas"
-            className="MuiListItemText-primary"
-          />
-        </ListItem>
-
-        {/* Gerenciamento Submenu */}
-        <ListItem
-          button
-          onClick={() => handleSubmenuClick('gerenciamento')}
-          className="MuiListItem-root"
-        >
-          <ManageAccountsIcon className="MuiListItem-icon" />
-          <ListItemText
-            primary="Gerenciamento"
-            className="MuiListItemText-primary"
-          />
-          {submenuState.gerenciamento ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        <Collapse in={submenuState.gerenciamento} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItem
-              button
-              onClick={() => navigate('/admin/users')}
-              className="MuiListItem-root MuiListItem-child"
-            >
-              <ListItemIcon className="MuiListItemIcon-dot">
-                <DotIcon style={{ fontSize: 8 }} className="DotIcon" />{' '}
-                {/* Set smaller size here */}
-              </ListItemIcon>
-              <ListItemText
-                primary="Usuários"
-                className="MuiListItemText-primary"
-              />
-            </ListItem>
-          </List>
-        </Collapse>
-      </List>
-    </Drawer>
+        ) : null}
+      </MiniDrawer>
+    </SidebarContainer>
   );
-};
-
-Sidebar.propTypes = {
-  open: PropTypes.bool.isRequired,
-  toggleDrawer: PropTypes.func.isRequired,
-  handleLogout: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

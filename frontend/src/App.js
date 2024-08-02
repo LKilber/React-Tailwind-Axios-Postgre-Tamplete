@@ -15,7 +15,6 @@ import Login from './pages/Login';
 import Implantation from './pages/Implantation';
 import Tickets from './pages/Tickets';
 import ProtectedRoute from './components/ProtectedRoute';
-import CreateUser from './pages/CreateUser';
 import Users from './pages/Users';
 
 const App = () => {
@@ -51,16 +50,6 @@ const App = () => {
               <ProtectedRoute>
                 <MainLayout>
                   <Tickets />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/createuser"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <CreateUser />
                 </MainLayout>
               </ProtectedRoute>
             }
