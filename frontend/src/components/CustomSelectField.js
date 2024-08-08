@@ -21,6 +21,7 @@ const CustomSelectField = ({
   helperText = '',
   error = false,
   disabled = false,
+  placeholder = 'Selecione', // Placeholder text
   ...props
 }) => {
   return (
@@ -32,9 +33,8 @@ const CustomSelectField = ({
       disabled={disabled}
     >
       <InputLabel
-        InputLabelProps={{
-          style: { fontSize: '0.875rem' }, // Ajuste o tamanho da label
-        }}
+        shrink
+        style={{ fontSize: '0.875rem' }} // Adjust label font size
       >
         {label}
       </InputLabel>
@@ -43,11 +43,39 @@ const CustomSelectField = ({
         name={name}
         value={value}
         onChange={onChange}
+        displayEmpty
+        renderValue={(selected) => {
+          // Display placeholder if no option is selected
+          if (!selected) {
+            return (
+              <span style={{ color: 'gray', fontSize: '0.75rem' }}>
+                {placeholder}
+              </span>
+            );
+          }
+          // Display the selected option
+          const selectedOption = options.find(
+            (option) => option.value === selected,
+          );
+          return selectedOption ? selectedOption.label : '';
+        }}
         {...props}
+        MenuProps={{
+          PaperProps: {
+            style: {
+              fontSize: '0.875rem', // Adjust menu items font size
+            },
+          },
+        }}
       >
+        {/* Render options */}
         {options.length > 0 ? (
           options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              style={{ fontSize: '0.875rem' }} // Adjust menu item font size
+            >
               {option.label}
             </MenuItem>
           ))
@@ -79,6 +107,7 @@ CustomSelectField.propTypes = {
   helperText: PropTypes.string,
   error: PropTypes.bool,
   disabled: PropTypes.bool,
+  placeholder: PropTypes.string, // Add placeholder prop type
 };
 
 // Define default props
@@ -90,6 +119,7 @@ CustomSelectField.defaultProps = {
   helperText: '',
   error: false,
   disabled: false,
+  placeholder: 'Selecione',
 };
 
 // Export the component

@@ -10,8 +10,11 @@ const CustomTextField = ({
   type = 'text',
   multiline = false,
   rows = 1,
+  helperText = '', // Add a helperText prop
+  error = false, // Add an error prop for validation
 }) => (
   <TextField
+    shrimk
     fullWidth
     variant="standard"
     label={label}
@@ -22,11 +25,13 @@ const CustomTextField = ({
     margin="normal"
     multiline={multiline}
     rows={rows}
+    helperText={helperText} // Add the helperText prop
+    error={error} // Add the error prop for styling
     InputProps={{
-      style: { fontSize: '0.875rem' }, // Ajuste o tamanho do texto
+      style: { fontSize: '0.875rem' }, // Adjust the text size
     }}
     InputLabelProps={{
-      style: { fontSize: '0.875rem' }, // Ajuste o tamanho da label
+      style: { fontSize: '0.875rem' }, // Adjust the label size
     }}
   />
 );
@@ -39,6 +44,16 @@ CustomTextField.propTypes = {
   type: PropTypes.string,
   multiline: PropTypes.bool,
   rows: PropTypes.number,
+  helperText: PropTypes.string, // Define the helperText prop type
+  error: PropTypes.bool, // Define the error prop type
+};
+
+CustomTextField.defaultProps = {
+  type: 'text',
+  multiline: false,
+  rows: 1,
+  helperText: '', // Default helper text to an empty string
+  error: false, // Default error to false
 };
 
 export default CustomTextField;

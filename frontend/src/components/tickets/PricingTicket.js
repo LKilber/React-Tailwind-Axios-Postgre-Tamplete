@@ -7,6 +7,7 @@ import CustomSelectField from '../CustomSelectField';
 import AttachmentDropzone from '../AttachmentDropzone';
 import apiService from '../../services/apiService';
 import CustomSwitch from '../StyledSwitch';
+import Divider from '@mui/material/Divider';
 
 import {
   Modal,
@@ -16,7 +17,6 @@ import {
   Grid,
   Typography,
   FormControl,
-  MenuItem,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -24,6 +24,7 @@ import {
   AppBar,
   Toolbar,
   IconButton,
+  Chip,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
@@ -51,6 +52,8 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
       socialReason: '',
       inepCode: '',
       cep: '',
+      uf: '',
+      city: '',
       address: '',
       observations: '',
     }));
@@ -119,7 +122,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     height: '95vh', // Altura fixa
     bgcolor: 'background.paper',
     boxShadow: 12,
-    borderRadius: '12px',
+    borderRadius: '5px',
     outline: 'none',
     display: 'flex',
     flexDirection: 'column',
@@ -132,12 +135,16 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0 8px',
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
-    height: '56px', // Height to align properly
     boxShadow: 'none', // Remove shadow
   };
+
+  const ContentStyle = {
+    padding: '25px', // Aplicar padding apenas ao conteúdo
+    flex: 1, // Permite que o conteúdo ocupe todo o espaço restante
+  };
+
   return (
     <Modal
       open={show}
@@ -153,8 +160,20 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
           {/* Barra de navegação superior com botão de fechamento */}
           <AppBar position="static" sx={NavbarStyle}>
             <Toolbar variant="dense" sx={{ width: '100%', p: 0 }}>
+              <Chip
+                className="ticket-column"
+                label="Preço & Risco"
+                sx={{
+                  bgcolor: '#65558F',
+                  color: '#fff',
+                  mr: 2,
+                  px: 0.5, // Reduz o padding horizontal
+                  fontSize: '0.75rem', // Reduz o tamanho da fonte
+                  maxWidth: '150px', // Define a largura máxima
+                }}
+              />
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Detalhes do Modal
+                Novo Ticket - Precificação Nova Escola
               </Typography>
               <IconButton edge="end" color="inherit" onClick={handleClose}>
                 <CloseIcon />
@@ -162,60 +181,86 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
             </Toolbar>
           </AppBar>
 
-          {/* Conteúdo do Modal */}
-          <Grid container spacing={1} sx={{ marginTop: 1 }}>
-            <Grid item xs={12}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={4}>
-                  <FormControl component="fieldset" fullWidth margin="normal">
-                    <Grid container alignItems="center" spacing={1}>
-                      <Grid item>
-                        <Typography component="legend" variant="body2">
-                          Precificação Agrupada?
-                        </Typography>
-                      </Grid>
-                      <Grid item>
-                        <CustomSwitch
-                          name="groupedPricing"
-                          value={formData.groupedPricing}
-                          onChange={handleSwitchChange}
-                        />
-                      </Grid>
+          {/* Contêiner de conteúdo com padding */}
+          <Box sx={ContentStyle}>
+            {/* Conteúdo do Modal */}
+            <Typography
+              component="legend"
+              variant="h6"
+              sx={{ color: '#2E73AB', mb: 1 }}
+              fontSize="0.875rem"
+              fontWeight="bold"
+            >
+              Dados Gerais
+            </Typography>
+            {/* Adicionando uma linha horizontal */}
+            <Divider sx={{ mb: 2 }} />{' '}
+            {/* MarginBottom para separar visualmente do conteúdo */}
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={4}>
+                <FormControl component="fieldset" fullWidth margin="normal">
+                  <Grid container alignItems="center" spacing={1}>
+                    <Grid item>
+                      <Typography component="legend" variant="body2">
+                        Precificação Agrupada?
+                      </Typography>
                     </Grid>
-                  </FormControl>
-                </Grid>
+                    <Grid item>
+                      <CustomSwitch
+                        name="groupedPricing"
+                        value={formData.groupedPricing}
+                        onChange={handleSwitchChange}
+                      />
+                    </Grid>
+                  </Grid>
+                </FormControl>
+              </Grid>
 
-                <Grid item xs={4}>
-                  <CustomSelectField
-                    label="Grupo Educacional:"
-                    name="selectedGroup"
-                    value={formData.selectedGroup}
-                    onChange={(e) => handleInputChange(e)}
-                    fullWidth
-                    margin="normal"
-                  >
-                    {groups.map((group) => (
-                      <MenuItem key={group.id} value={group.id}>
-                        {group.name}
-                      </MenuItem>
-                    ))}
-                  </CustomSelectField>
-                </Grid>
+              <Grid item xs={4}>
+                <CustomSelectField
+                  label="Grupo Educacional:"
+                  name="selectedGroup"
+                  options={groups.map((group) => ({
+                    value: group.id,
+                    label: group.name,
+                  }))}
+                  value={formData.selectedGroup}
+                  onChange={(e) => handleInputChange(e)}
+                  fullWidth
+                  margin="normal"
+                />
+              </Grid>
 
-                <Grid item xs={4}>
-                  <CustomTextField
-                    label="Quantidade de Unidades:"
-                    type="number"
-                    name="unitQuantity"
-                    value={formData.unitQuantity}
-                    onChange={(e) => handleInputChange(e)}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
+              <Grid item xs={4}>
+                <CustomSelectField
+                  label="Quantidade de Unidades:"
+                  name="unitQuantity"
+                  options={[
+                    { value: 1, label: 1 },
+                    { value: 2, label: 2 },
+                    { value: 3, label: 3 },
+                    { value: 4, label: 4 },
+                    { value: 5, label: 5 },
+                    { value: 6, label: 6 },
+                  ]}
+                  value={formData.unitQuantity}
+                  onChange={(e) => handleInputChange(e)}
+                  fullWidth
+                  margin="normal"
+                ></CustomSelectField>
               </Grid>
             </Grid>
-
+            <Typography
+              component="legend"
+              variant="h6"
+              sx={{ color: '#2E73AB', mt: 3, mb: 1 }}
+              fontSize="0.875rem"
+              fontWeight="bold"
+            >
+              Detalhamento
+            </Typography>
+            {/* Adicionando uma linha horizontal */}
+            <Divider sx={{ mb: 2 }} />
             {formData.units.map((unit, index) => (
               <Accordion key={index} sx={{ mb: 1 }}>
                 <AccordionSummary
@@ -227,7 +272,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 </AccordionSummary>
                 <AccordionDetails>
                   <Grid container spacing={1}>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                       <CustomTextField
                         label="CNPJ da Escola"
                         name="cnpj"
@@ -235,15 +280,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <CustomTextField
-                        label="Nome Fantasia"
-                        name="fantasyName"
-                        value={unit.fantasyName}
-                        onChange={(e) => handleInputChange(e, index)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={5}>
                       <CustomTextField
                         label="Razão Social"
                         name="socialReason"
@@ -251,7 +288,17 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={5}>
+                      <CustomTextField
+                        label="Nome Fantasia"
+                        name="fantasyName"
+                        value={unit.fantasyName}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={2}>
                       <CustomTextField
                         label="Código Inep"
                         name="inepCode"
@@ -259,7 +306,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                       <CustomTextField
                         label="CEP"
                         name="cep"
@@ -267,7 +314,23 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={1}>
+                      <CustomTextField
+                        label="UF"
+                        name="uf"
+                        value={unit.uf}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <CustomTextField
+                        label="Cidade"
+                        name="city"
+                        value={unit.city}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={5}>
                       <CustomTextField
                         label="Endereço"
                         name="address"
@@ -275,13 +338,13 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={12}>
                       <CustomTextField
                         label="Observações"
                         name="observations"
                         value={unit.observations}
                         multiline
-                        rows={1}
+                        rows={2}
                         onChange={(e) => handleInputChange(e, index)}
                       />
                     </Grid>
@@ -289,8 +352,18 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 </AccordionDetails>
               </Accordion>
             ))}
-
-            <Grid item xs={6}>
+            <Typography
+              component="legend"
+              variant="h6"
+              sx={{ color: '#2E73AB', mt: 3, mb: 1 }}
+              fontSize="0.875rem"
+              fontWeight="bold"
+            >
+              Anexos
+            </Typography>
+            {/* Adicionando uma linha horizontal */}
+            <Divider sx={{ mb: 2 }} />
+            <Grid item xs={12}>
               <AttachmentDropzone
                 name="attachments"
                 label="Anexos"
@@ -299,8 +372,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 onRemove={onRemove}
               />
             </Grid>
-
-            <Grid item xs={12} textAlign="center">
+            <Grid item xs={12} textAlign="center" sx={{ mt: 2 }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -309,7 +381,7 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                 Salvar
               </Button>
             </Grid>
-          </Grid>
+          </Box>
         </Box>
       </Fade>
     </Modal>
