@@ -5,7 +5,7 @@ import Cookies from 'js-cookie'; // Importa js-cookie para acessar o token
 
 // Cria uma instância Axios com configuração padrão
 const api = axios.create({
-  baseURL: 'http://192.168.19.188:8000/demand',
+  baseURL: 'http://192.168.19.114:8000/demand',
 });
 
 // Função utilitária para lidar com erros da API

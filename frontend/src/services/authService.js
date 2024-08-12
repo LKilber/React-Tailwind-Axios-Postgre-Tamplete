@@ -4,7 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.19.188:8000',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://192.168.19.114:8000',
 });
 
 // Set to true during development to use a fake user

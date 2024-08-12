@@ -4,6 +4,7 @@ import useAuth from '../../hooks/useAuth';
 import useFetchSchoolGroups from '../../hooks/useFetchSchoolGroups';
 import CustomTextField from '../CustomTextField';
 import CustomSelectField from '../CustomSelectField';
+import RichTextEditor from '../RichTextEditor';
 import AttachmentDropzone from '../AttachmentDropzone';
 import apiService from '../../services/apiService';
 import CustomSwitch from '../StyledSwitch';
@@ -60,10 +61,18 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
     setFormData((prevState) => ({ ...prevState, units: newUnits }));
   }, [formData.unitQuantity]);
 
-  const handleInputChange = (e, index) => {
-    const { name, value } = e.target;
+  const handleInputChange = (e, index, nameOverride) => {
+    let name, value;
 
-    console.log(e.target);
+    if (e && e.target) {
+      // Se for um evento de input padrão
+      name = e.target.name;
+      value = e.target.value;
+    } else {
+      // Se for o conteúdo do ReactQuill (ou outro valor direto)
+      name = nameOverride; // nome do campo, passado explicitamente
+      value = e; // valor do conteúdo
+    }
 
     if (typeof index === 'number') {
       const updatedUnits = [...formData.units];
@@ -267,10 +276,11 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls={`panel${index}-content`}
                   id={`panel${index}-header`}
+                  sx={{ height: '1%', paddingBottom: '0px' }}
                 >
                   <Typography>Unidade {index + 1}</Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{ paddingTop: '0px' }}>
                   <Grid container spacing={1}>
                     <Grid item xs={12} sm={2}>
                       <CustomTextField
@@ -339,13 +349,12 @@ const PricingTicket = ({ show, handleClose, demandType, onSubmit }) => {
                       />
                     </Grid>
                     <Grid item xs={12} sm={12}>
-                      <CustomTextField
-                        label="Observações"
-                        name="observations"
+                      <RichTextEditor
+                        label="Contexto Comercial"
                         value={unit.observations}
-                        multiline
-                        rows={2}
-                        onChange={(e) => handleInputChange(e, index)}
+                        onChange={(content) =>
+                          handleInputChange(content, index, 'observations')
+                        }
                       />
                     </Grid>
                   </Grid>
